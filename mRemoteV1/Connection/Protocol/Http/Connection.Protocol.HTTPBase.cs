@@ -1,5 +1,7 @@
 using System;
 using System.Windows.Forms;
+using CefSharp;
+using CefSharp.WinForms;
 using Gecko;
 using mRemoteNG.Tools;
 using mRemoteNG.App;
@@ -16,18 +18,28 @@ namespace mRemoteNG.Connection.Protocol.Http
 		public string httpOrS;
 		public int defaultPort;
 		private string tabTitle;
+	    private RenderingEngine _renderingEngine;
         #endregion
-				
+
         #region Public Methods
-		public HTTPBase(RenderingEngine RenderingEngine)
-		{
-			try
+        public HTTPBase(RenderingEngine RenderingEngine)
+        {
+            _renderingEngine = RenderingEngine;
+
+            try
 			{
 				if (RenderingEngine == RenderingEngine.Gecko)
 				{
                     Xpcom.Initialize("Firefox");
                     Control = new GeckoWebBrowser();
 				}
+                else if (RenderingEngine == RenderingEngine.CefSharp)
+                {
+                    if(!Cef.IsInitialized)
+                        Cef.Initialize();
+                    Control = new ChromiumWebBrowser("http://www.google.com");
+
+                }
 				else
 				{
                     Control = new WebBrowser();
@@ -40,8 +52,12 @@ namespace mRemoteNG.Connection.Protocol.Http
 				Runtime.MessageCollector.AddMessage(Messages.MessageClass.ErrorMsg, Language.strHttpConnectionFailed + Environment.NewLine + ex.Message, true);
 			}
 		}
-				
-		public virtual void NewExtended()
+
+        public HTTPBase() : base()
+        {
+        }
+
+        public virtual void NewExtended()
 		{
 		}
 				
@@ -72,6 +88,11 @@ namespace mRemoteNG.Connection.Protocol.Http
                         //GeckoBrowser.Tab.LastTabRemoved += wBrowser_LastTabRemoved;
                     }
                 }
+                else if (InterfaceControl.Info.RenderingEngine == RenderingEngine.CefSharp)
+                {
+                    ChromiumWebBrowser CefBrowser = (ChromiumWebBrowser) wBrowser;
+                    CefBrowser.TitleChanged += CefBrowser_TitleChanged;
+                }
                 else
 				{
                     WebBrowser objWebBrowser = (WebBrowser)wBrowser;
@@ -95,8 +116,8 @@ namespace mRemoteNG.Connection.Protocol.Http
 				return false;
 			}
 		}
-				
-		public override bool Connect()
+
+                public override bool Connect()
 		{
 			try
 			{
@@ -124,6 +145,10 @@ namespace mRemoteNG.Connection.Protocol.Http
 					{
                         ((GeckoWebBrowser)wBrowser).Navigate(strHost + ":" + InterfaceControl.Info.Port);
 					}
+                    else if (InterfaceControl.Info.RenderingEngine == RenderingEngine.CefSharp)
+                    {
+                        ((ChromiumWebBrowser)wBrowser).Load(strHost + ":" + InterfaceControl.Info.Port);
+                    }
 					else
 					{
                         ((WebBrowser)wBrowser).Navigate(strHost + ":" + InterfaceControl.Info.Port);
@@ -140,6 +165,10 @@ namespace mRemoteNG.Connection.Protocol.Http
 					{
 						((GeckoWebBrowser)wBrowser).Navigate(strHost);
 					}
+                    else if (InterfaceControl.Info.RenderingEngine == RenderingEngine.CefSharp)
+                    {
+                        ((ChromiumWebBrowser)wBrowser).Load(strHost);
+                    }
 					else
 					{
                         ((WebBrowser)wBrowser).Navigate(strHost);
@@ -156,12 +185,29 @@ namespace mRemoteNG.Connection.Protocol.Http
 			}
 		}
         #endregion
-				
+
         #region Private Methods
         #endregion
-				
+
         #region Events
-		private void wBrowser_Navigated(object sender, WebBrowserNavigatedEventArgs e)
+
+	    private void wBrowser_FormClosed(object sender, FormClosingEventArgs e)
+	    {
+            if (_renderingEngine == RenderingEngine.Gecko)
+            {
+                Xpcom.Shutdown();
+            }
+            else if (_renderingEngine == RenderingEngine.CefSharp)
+            {
+                Cef.Shutdown();
+
+            }
+            else
+            {
+            }
+        }
+
+        private void wBrowser_Navigated(object sender, WebBrowserNavigatedEventArgs e)
 		{
 			WebBrowser objWebBrowser = wBrowser as WebBrowser;
 			if (objWebBrowser == null)
@@ -191,8 +237,46 @@ namespace mRemoteNG.Connection.Protocol.Http
 		{
             Close();
 		}
-				
-		private void wBrowser_DocumentTitleChanged(object sender, EventArgs e)
+
+        private void CefBrowser_TitleChanged(object sender, TitleChangedEventArgs e)
+        {
+            try
+            {
+                var tabP = InterfaceControl.Parent as TabPage;
+
+                if (tabP != null)
+                {
+                    string shortTitle = "";
+
+                    if (InterfaceControl.Info.RenderingEngine == RenderingEngine.CefSharp)
+                    {
+                        if (e.Title.Length >= 30)
+                        {
+                            shortTitle = e.Title.Substring(0, 29) + " ...";
+                        }
+                        else
+                        {
+                            shortTitle = e.Title;
+                        }
+                    }
+
+                    if (!string.IsNullOrEmpty(tabTitle))
+                    {
+                        tabP.Title = tabTitle + @" - " + shortTitle;
+                    }
+                    else
+                    {
+                        tabP.Title = shortTitle;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Runtime.MessageCollector.AddMessage(Messages.MessageClass.WarningMsg, Language.strHttpDocumentTileChangeFailed + Environment.NewLine + ex.Message, true);
+            }
+        }
+
+        private void wBrowser_DocumentTitleChanged(object sender, EventArgs e)
 		{
 			try
 			{
@@ -298,8 +382,10 @@ namespace mRemoteNG.Connection.Protocol.Http
             [LocalizedAttributes.LocalizedDescription("strHttpInternetExplorer")]
             IE = 1,
             [LocalizedAttributes.LocalizedDescription("strHttpGecko")]
-            Gecko = 2
-		}
+            Gecko = 2,
+            [LocalizedAttributes.LocalizedDescription("strHttpCefSharp")]
+            CefSharp = 3
+        }
 				
 		private enum NWMF
 		{

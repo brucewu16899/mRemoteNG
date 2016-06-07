@@ -1,5 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <Import Project="..\packages\CefSharp.WinForms.49.0.1\build\CefSharp.WinForms.props" Condition="Exists('..\packages\CefSharp.WinForms.49.0.1\build\CefSharp.WinForms.props')" />
+  <Import Project="..\packages\CefSharp.Common.49.0.1\build\CefSharp.Common.props" Condition="Exists('..\packages\CefSharp.Common.49.0.1\build\CefSharp.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -45,59 +47,23 @@
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <DefineDebug>true</DefineDebug>
-    <DefineTrace>true</DefineTrace>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DocumentationFile>
-    </DocumentationFile>
-    <NOWARN>1591,660,661</NOWARN>
-    <PlatformTarget>x86</PlatformTarget>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <DefineConstants>DEBUG</DefineConstants>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <DefineDebug>false</DefineDebug>
-    <DefineTrace>true</DefineTrace>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DocumentationFile>
-    </DocumentationFile>
-    <NOWARN>1591,660,661</NOWARN>
-    <DebugSymbols>true</DebugSymbols>
-    <PlatformTarget>x86</PlatformTarget>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release Portable|AnyCPU' ">
-    <DefineTrace>true</DefineTrace>
-    <OutputPath>bin\Release Portable\</OutputPath>
-    <Optimize>false</Optimize>
-    <NOWARN>1591,660,661</NOWARN>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <DefineConstants>PORTABLE</DefineConstants>
-    <DebugSymbols>true</DebugSymbols>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug Portable|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DefineDebug>true</DefineDebug>
-    <DefineTrace>true</DefineTrace>
-    <OutputPath>bin\Debug Portable\</OutputPath>
-    <NOWARN>1591,660,661</NOWARN>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <DefineConstants>DEBUG;PORTABLE</DefineConstants>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
-  </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CefSharp, Version=49.0.1.0, Culture=neutral, PublicKeyToken=40c4b6fc221f4138, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>References\CefSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="CefSharp.BrowserSubprocess.Core, Version=49.0.1.0, Culture=neutral, PublicKeyToken=40c4b6fc221f4138, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>References\CefSharp.BrowserSubprocess.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="CefSharp.Core, Version=49.0.1.0, Culture=neutral, PublicKeyToken=40c4b6fc221f4138, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>References\CefSharp.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="CefSharp.WinForms, Version=49.0.1.0, Culture=neutral, PublicKeyToken=40c4b6fc221f4138, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>References\CefSharp.WinForms.dll</HintPath>
+    </Reference>
     <Reference Include="Geckofx-Core, Version=45.0.19.0, Culture=neutral, PublicKeyToken=3209ac31600d1857, processorArchitecture=x86">
       <HintPath>..\packages\Geckofx45.45.0.19.0\lib\net40\Geckofx-Core.dll</HintPath>
       <Private>True</Private>
@@ -1244,6 +1210,50 @@
     <PostBuildEvent>call "$(DevEnvDir)..\tools\vsvars32.bat"
 editbin /largeaddressaware $(TargetPath)</PostBuildEvent>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <DefineDebug>true</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG</DefineConstants>
+    <NoWarn>1591,660,661</NoWarn>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <DefineTrace>true</DefineTrace>
+    <OutputPath>bin\Release\</OutputPath>
+    <NoWarn>1591,660,661</NoWarn>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release Portable|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <DefineTrace>true</DefineTrace>
+    <OutputPath>bin\Release Portable\</OutputPath>
+    <DefineConstants>PORTABLE</DefineConstants>
+    <NoWarn>1591,660,661</NoWarn>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug Portable|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <DefineDebug>true</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <OutputPath>bin\Debug Portable\</OutputPath>
+    <DefineConstants>DEBUG;PORTABLE</DefineConstants>
+    <NoWarn>1591,660,661</NoWarn>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
@@ -1258,5 +1268,13 @@ editbin /largeaddressaware $(TargetPath)</PostBuildEvent>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Geckofx45.45.0.19.0\build\Geckofx45.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Geckofx45.45.0.19.0\build\Geckofx45.targets'))" />
+    <Error Condition="!Exists('..\packages\cef.redist.x64.3.2623.1401\build\cef.redist.x64.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\cef.redist.x64.3.2623.1401\build\cef.redist.x64.targets'))" />
+    <Error Condition="!Exists('..\packages\cef.redist.x86.3.2623.1401\build\cef.redist.x86.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\cef.redist.x86.3.2623.1401\build\cef.redist.x86.targets'))" />
+    <Error Condition="!Exists('..\packages\CefSharp.Common.49.0.1\build\CefSharp.Common.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\CefSharp.Common.49.0.1\build\CefSharp.Common.props'))" />
+    <Error Condition="!Exists('..\packages\CefSharp.Common.49.0.1\build\CefSharp.Common.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\CefSharp.Common.49.0.1\build\CefSharp.Common.targets'))" />
+    <Error Condition="!Exists('..\packages\CefSharp.WinForms.49.0.1\build\CefSharp.WinForms.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\CefSharp.WinForms.49.0.1\build\CefSharp.WinForms.props'))" />
   </Target>
+  <Import Project="..\packages\cef.redist.x64.3.2623.1401\build\cef.redist.x64.targets" Condition="Exists('..\packages\cef.redist.x64.3.2623.1401\build\cef.redist.x64.targets')" />
+  <Import Project="..\packages\cef.redist.x86.3.2623.1401\build\cef.redist.x86.targets" Condition="Exists('..\packages\cef.redist.x86.3.2623.1401\build\cef.redist.x86.targets')" />
+  <Import Project="..\packages\CefSharp.Common.49.0.1\build\CefSharp.Common.targets" Condition="Exists('..\packages\CefSharp.Common.49.0.1\build\CefSharp.Common.targets')" />
 </Project>
