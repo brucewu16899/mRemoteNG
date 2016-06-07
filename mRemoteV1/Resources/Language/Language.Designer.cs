@@ -2010,6 +2010,15 @@ namespace mRemoteNG {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to CefSharp (Chrome).
+        /// </summary>
+        internal static string strHttpCefSharp {
+            get {
+                return ResourceManager.GetString("strHttpCefSharp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to HTTP Connect Failed!.
         /// </summary>
         internal static string strHttpConnectFailed {
@@ -2044,7 +2053,7 @@ namespace mRemoteNG {
                 return ResourceManager.GetString("strHttpGecko", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Internet Explorer.
         /// </summary>

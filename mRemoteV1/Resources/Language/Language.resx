@@ -795,6 +795,9 @@ See the Microsoft Support article at http://support.microsoft.com/kb/811833 for 
   <data name="strHttpGecko" xml:space="preserve">
     <value>Gecko (Firefox)</value>
   </data>
+  <data name="strHttpCefSharp" xml:space="preserve">
+    <value>CefSharp (Chrome)</value>
+  </data>
   <data name="strHttpInternetExplorer" xml:space="preserve">
     <value>Internet Explorer</value>
   </data>
