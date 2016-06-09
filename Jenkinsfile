@@ -41,7 +41,7 @@ def GetPatternToMatchBranchNameFromDirectory() {
 	} else {
 		folderSeparator =  "\\\\"
 	}
-	patternToUse = "(${folderSeparator}(${branchNamePattern}))(${jenkinsJobInfoTag})\$"
+	patternToUse = "${folderSeparator}(${branchNamePattern})(${jenkinsJobInfoTag})\$"
 	patternToUse
 }
 def ConvertHtmlSlashToSlashUsedByGit(stringToChange)
