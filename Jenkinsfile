@@ -28,6 +28,7 @@ def GetBranchName() {
 	def rawBranchName = matcher ? matcher[0][1] : null
 	echo "Raw branch name: ${rawBranchName}"
 	def modifiedBranchName = ConvertHtmlSlashToSlashUsedByGit(rawBranchName)
+	echo "Modified branch name: ${modifiedBranchName}"
 	return modifiedBranchName
 }
 def GetPatternToMatchBranchNameFromDirectory() {
@@ -48,7 +49,7 @@ def ConvertHtmlSlashToSlashUsedByGit(stringToChange)
 {
 	def htmlSlash = "%2F"
 	def slashUsedByGit = "/"
-	def modifiedString = stringToChange.gsub(htmlSlash,slashUsedByGit)
+	def modifiedString = stringToChange.gsub("/${htmlSlash}/",slashUsedByGit)
 	echo "modifiedString: ${modifiedString}"
 	return modifiedString
 }
