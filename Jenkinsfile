@@ -26,7 +26,7 @@ def GetBranchName() {
 	echo "PatternToUse: ${patternToUse}"
 	java.util.regex.Matcher matcher = jobDir =~ patternToUse
 	echo "Ran the matcher"
-	matcher ? matcher[0][1] : null
+	matcher ? ConvertHtmlSlashToSlashUsedByGit(matcher[0][1]) : null
 }
 def GetPatternToMatchBranchNameFromDirectory() {
 	def patternToUse = ""
@@ -39,6 +39,12 @@ def GetPatternToMatchBranchNameFromDirectory() {
 	} else {
 		folderSeparator =  "\\\\"
 	}
-	patternToUse = "${folderSeparator}(${branchNamePattern})(${jenkinsJobInfoTag})\$"
+	patternToUse = "(${folderSeparator}(${branchNamePattern}))(${jenkinsJobInfoTag})\$"
 	patternToUse
+}
+def ConvertHtmlSlashToSlashUsedByGit(stringToChange)
+{
+	def htmlSlash = "%2F"
+	def slashUsedByGit = "/"
+	stringToChange.gsub(htmlSlash,slashUsedByGit)
 }
