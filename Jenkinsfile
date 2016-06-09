@@ -28,7 +28,7 @@ def GetBranchName() {
 	def rawBranchName = matcher ? matcher[0][1] : null
 	echo "Raw branch name: ${rawBranchName}"
 	def modifiedBranchName = ConvertHtmlSlashToSlashUsedByGit(rawBranchName)
-	modifiedBranchName
+	return modifiedBranchName
 }
 def GetPatternToMatchBranchNameFromDirectory() {
 	def patternToUse = ""
@@ -42,7 +42,7 @@ def GetPatternToMatchBranchNameFromDirectory() {
 		folderSeparator =  "\\\\"
 	}
 	patternToUse = "${folderSeparator}(${branchNamePattern})(${jenkinsJobInfoTag})\$"
-	patternToUse
+	return patternToUse
 }
 def ConvertHtmlSlashToSlashUsedByGit(stringToChange)
 {
@@ -50,5 +50,5 @@ def ConvertHtmlSlashToSlashUsedByGit(stringToChange)
 	def slashUsedByGit = "/"
 	def modifiedString = stringToChange.gsub(htmlSlash,slashUsedByGit)
 	echo "modifiedString: ${modifiedString}"
-	modifiedString
+	return modifiedString
 }
