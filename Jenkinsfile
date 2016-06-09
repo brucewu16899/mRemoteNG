@@ -25,8 +25,10 @@ def GetBranchName() {
 	def patternToUse = GetPatternToMatchBranchNameFromDirectory()
 	echo "PatternToUse: ${patternToUse}"
 	java.util.regex.Matcher matcher = jobDir =~ patternToUse
-	echo "Ran the matcher"
-	matcher ? ConvertHtmlSlashToSlashUsedByGit(matcher[0][1]) : null
+	def rawBranchName = matcher ? matcher[0][1] : null
+	echo "Raw branch name: ${matcher[0][1]}"
+	def modifiedBranchName = ConvertHtmlSlashToSlashUsedByGit(rawBranchName)
+	modifiedBranchName
 }
 def GetPatternToMatchBranchNameFromDirectory() {
 	def patternToUse = ""
@@ -46,5 +48,7 @@ def ConvertHtmlSlashToSlashUsedByGit(stringToChange)
 {
 	def htmlSlash = "%2F"
 	def slashUsedByGit = "/"
-	stringToChange.gsub(htmlSlash,slashUsedByGit)
+	def modifiedString = stringToChange.gsub(htmlSlash,slashUsedByGit)
+	echo "modifiedString: ${modifiedString}"
+	modifiedString
 }
