@@ -47,9 +47,14 @@ def GetPatternToMatchBranchNameFromDirectory() {
 }
 def ConvertHtmlSlashToSlashUsedByGit(stringToChange)
 {
-	def htmlSlash = "%2F"
-	def slashUsedByGit = "/"
-	def modifiedString = stringToChange.gsub("/${htmlSlash}/",slashUsedByGit)
+	def replacement = {
+		if (it == '%2F') {
+			'/'
+		} else {
+			null
+		}
+	}
+	def modifiedString = stringToChange.collectReplacements(replacement)
 	echo "modifiedString: ${modifiedString}"
 	return modifiedString
 }
