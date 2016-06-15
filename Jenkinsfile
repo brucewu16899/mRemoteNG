@@ -10,14 +10,14 @@ node('windows') {
 	git([url: gitUrl, branch: branchName])
 
 	stage 'Build mRemoteNG (Normal)'
-	bat "\"${vsToolsDir}\\VsDevCmd.bat\" && msbuild.exe /nologo \"${jobDir}\\mRemoteV1.sln\""
+	bat "\"${vsToolsDir}\\VsDevCmd.bat\" && msbuild.exe /nologo \"mRemoteV1.sln\""
 
 	stage 'Build mRemoteNG (Portable)'
-	bat "\"${vsToolsDir}\\VsDevCmd.bat\" && msbuild.exe /nologo /p:Configuration=\"Debug Portable\" \"${jobDir}\\mRemoteV1.sln\""
+	bat "\"${vsToolsDir}\\VsDevCmd.bat\" && msbuild.exe /nologo /p:Configuration=\"Debug Portable\" \"mRemoteV1.sln\""
 
 	stage 'Run Unit Tests'
 	def nunitTestAdapterPath = "C:\\Users\\Administrator\\AppData\\Local\\Microsoft\\VisualStudio\\14.0\\Extensions"
-	bat "\"${vsToolsDir}\\VsDevCmd.bat\" && VSTest.Console.exe /TestAdapterPath:${nunitTestAdapterPath} \"${jobDir}\\mRemoteNGTests\\bin\\debug\\mRemoteNGTests.dll\""
+	bat "\"${vsToolsDir}\\VsDevCmd.bat\" && VSTest.Console.exe /TestAdapterPath:${nunitTestAdapterPath} \"mRemoteNGTests\\bin\\debug\\mRemoteNGTests.dll\""
 }
 def GetBranchName() {
 	def jobDir = pwd()
@@ -47,14 +47,6 @@ def GetPatternToMatchBranchNameFromDirectory() {
 }
 def ConvertHtmlSlashToSlashUsedByGit(stringToChange)
 {
-	def replacement = {
-		if (it == '%2F') {
-			'/'
-		} else {
-			null
-		}
-	}
-	def modifiedString = stringToChange.collectReplacements(replacement)
-	echo "modifiedString: ${modifiedString}"
+	def modifiedString = stringToChange.replaceAll(/%2F/, "/")
 	return modifiedString
 }
