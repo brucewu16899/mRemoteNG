@@ -6,7 +6,7 @@ namespace mRemoteNG.UI.Forms.OptionsPages
 {
 	public class OptionsPage : UserControl
 	{
-		public OptionsPage()
+	    protected OptionsPage()
 		{
 			//InitializeComponent();
 		}
@@ -38,5 +38,17 @@ namespace mRemoteNG.UI.Forms.OptionsPages
 				
 		}
         #endregion
-	}
+
+        private void InitializeComponent()
+        {
+            this.SuspendLayout();
+            // 
+            // OptionsPage
+            // 
+            this.Name = "OptionsPage";
+            this.Size = new System.Drawing.Size(610, 489);
+            this.ResumeLayout(false);
+
+        }
+    }
 }

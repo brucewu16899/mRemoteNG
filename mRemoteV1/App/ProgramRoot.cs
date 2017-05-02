@@ -24,8 +24,9 @@ namespace mRemoteNG.App
 
         private static void StartApplication()
         {
-            Startup.Instance.InitializeProgram();
-            Application.Run(frmMain.Default);
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            Application.Run(FrmMain.Default);
         }
 
         public static void CloseSingletonInstanceMutex()
@@ -35,7 +36,7 @@ namespace mRemoteNG.App
 
         private static void StartApplicationAsSingleInstance()
         {
-            var mutexID = "mRemoteNG_SingleInstanceMutex";
+            const string mutexID = "mRemoteNG_SingleInstanceMutex";
             bool newInstanceCreated;
             mutex = new Mutex(false, mutexID, out newInstanceCreated);
             if (!newInstanceCreated)
@@ -51,18 +52,16 @@ namespace mRemoteNG.App
         private static void SwitchToCurrentInstance()
         {
             var singletonInstanceWindowHandle = GetRunningSingletonInstanceWindowHandle();
-            if (singletonInstanceWindowHandle != IntPtr.Zero)
-            {
-                if (NativeMethods.IsIconic(singletonInstanceWindowHandle) != 0)
-                    NativeMethods.ShowWindow(singletonInstanceWindowHandle, (int)NativeMethods.SW_RESTORE);
-            }
+            if (singletonInstanceWindowHandle == IntPtr.Zero) return;
+            if (NativeMethods.IsIconic(singletonInstanceWindowHandle) != 0)
+                NativeMethods.ShowWindow(singletonInstanceWindowHandle, (int)NativeMethods.SW_RESTORE);
         }
 
         private static IntPtr GetRunningSingletonInstanceWindowHandle()
         {
             var windowHandle = IntPtr.Zero;
             var currentProcess = Process.GetCurrentProcess();
-            foreach (Process enumeratedProcess in Process.GetProcessesByName(currentProcess.ProcessName))
+            foreach (var enumeratedProcess in Process.GetProcessesByName(currentProcess.ProcessName))
             {
                 if (enumeratedProcess.Id != currentProcess.Id && enumeratedProcess.MainModule.FileName == currentProcess.MainModule.FileName && enumeratedProcess.MainWindowHandle != IntPtr.Zero)
                     windowHandle = enumeratedProcess.MainWindowHandle;

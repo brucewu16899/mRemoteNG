@@ -1,50 +1,49 @@
-﻿using mRemoteNG.Messages;
-using mRemoteNG.Tools;
+﻿using mRemoteNG.Tools;
 using System;
 using System.Diagnostics;
-using mRemoteNG.My;
+using System.Windows.Forms;
+using mRemoteNG.Config.Putty;
+using mRemoteNG.UI.Controls;
 using mRemoteNG.UI.Forms;
+// ReSharper disable ArrangeAccessorOwnerBody
 
 namespace mRemoteNG.App
 {
-    public class Shutdown
+    public static class Shutdown
     {
-        private static string _updateFilePath = null;
+        private static string _updateFilePath;
 
-        public static bool UpdatePending
+        private static bool UpdatePending
         {
-            get
-            {
-                return !string.IsNullOrEmpty(_updateFilePath);
-            }
+            get { return !string.IsNullOrEmpty(_updateFilePath); }
         }
 
         public static void Quit(string updateFilePath = null)
         {
             _updateFilePath = updateFilePath;
-            frmMain.Default.Close();
+            FrmMain.Default.Close();
             ProgramRoot.CloseSingletonInstanceMutex();
         }
 
-        public static void Cleanup()
+        public static void Cleanup(Control quickConnectToolStrip, ExternalToolsToolStrip externalToolsToolStrip)
         {
             try
             {
                 StopPuttySessionWatcher();
                 DisposeNotificationAreaIcon();
                 SaveConnections();
-                SaveSettings();
+                SaveSettings(quickConnectToolStrip, externalToolsToolStrip);
                 UnregisterBrowsers();
             }
             catch (Exception ex)
             {
-                Runtime.MessageCollector.AddMessage(MessageClass.ErrorMsg, Language.strSettingsCouldNotBeSavedOrTrayDispose + Environment.NewLine + ex.Message, true);
+                Runtime.MessageCollector.AddExceptionStackTrace(Language.strSettingsCouldNotBeSavedOrTrayDispose, ex);
             }
         }
 
         private static void StopPuttySessionWatcher()
         {
-            Config.Putty.Sessions.StopWatcher();
+            PuttySessionsManager.Instance.StopWatcher();
         }
 
         private static void DisposeNotificationAreaIcon()
@@ -55,13 +54,13 @@ namespace mRemoteNG.App
 
         private static void SaveConnections()
         {
-            if (mRemoteNG.Settings.Default.SaveConsOnExit)
+            if (Settings.Default.SaveConsOnExit)
                 Runtime.SaveConnections();
         }
 
-        private static void SaveSettings()
+        private static void SaveSettings(Control quickConnectToolStrip, ExternalToolsToolStrip externalToolsToolStrip)
         {
-            Config.Settings.SettingsSaver.SaveSettings();
+            Config.Settings.SettingsSaver.SaveSettings(quickConnectToolStrip, externalToolsToolStrip);
         }
 
         private static void UnregisterBrowsers()
@@ -77,7 +76,7 @@ namespace mRemoteNG.App
             }
             catch (Exception ex)
             {
-                Runtime.MessageCollector.AddMessage(MessageClass.ErrorMsg, "The update could not be started." + Environment.NewLine + ex.Message, true);
+                Runtime.MessageCollector.AddExceptionStackTrace("The update could not be started.", ex);
             }
         }
 

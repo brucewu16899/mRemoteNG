@@ -1,19 +1,18 @@
-using System.Collections.Generic;
 using System;
-using System.Drawing;
 using System.Diagnostics;
-using mRemoteNG.App;
+using System.Drawing;
 using System.IO;
-using System.ComponentModel;
+using mRemoteNG.App;
 using mRemoteNG.Connection;
 using mRemoteNG.Connection.Protocol;
-using mRemoteNG.My;
-
+using mRemoteNG.Messages;
+// ReSharper disable ArrangeAccessorOwnerBody
 
 namespace mRemoteNG.Tools
 {
 	public class ExternalTool
 	{
+        private readonly IConnectionInitiator _connectionInitiator = new ConnectionInitiator();
         #region Public Properties
 		public string DisplayName { get; set; }
 		public string FileName { get; set; }
@@ -23,33 +22,22 @@ namespace mRemoteNG.Tools
         public ConnectionInfo ConnectionInfo { get; set; }
 		
         public Icon Icon
-		{
-			get
-			{
-				if (File.Exists(FileName))
-					return MiscTools.GetIconFromFile(FileName);
-				else
-					return null;
-			}
-		}
-		
-        public Image Image
-		{
-			get
-			{
-				if (Icon != null)
-					return Icon.ToBitmap();
-				else
-					return Resources.mRemote_Icon.ToBitmap();
-			}
-		}
-        #endregion
+        {
+            get { return File.Exists(FileName) ? MiscTools.GetIconFromFile(FileName) : Resources.mRemote_Icon; }
+        }
+
+	    public Image Image
+	    {
+	        get { return Icon?.ToBitmap() ?? Resources.mRemote_Icon.ToBitmap(); }
+	    }
+
+	    #endregion
 		
 		public ExternalTool(string displayName = "", string fileName = "", string arguments = "")
 		{
-			this.DisplayName = displayName;
-			this.FileName = fileName;
-			this.Arguments = arguments;
+			DisplayName = displayName;
+			FileName = fileName;
+			Arguments = arguments;
 		}
 
         public void Start(ConnectionInfo startConnectionInfo = null)
@@ -58,7 +46,7 @@ namespace mRemoteNG.Tools
 			{
 			    if (string.IsNullOrEmpty(FileName))
 			    {
-			        Runtime.MessageCollector.AddMessage(Messages.MessageClass.ErrorMsg, "ExternalApp.Start() failed: FileName cannot be blank.", false);
+			        Runtime.MessageCollector.AddMessage(MessageClass.ErrorMsg, "ExternalApp.Start() failed: FileName cannot be blank.");
 			        return;
 			    }
 				
@@ -77,7 +65,7 @@ namespace mRemoteNG.Tools
 
         private void StartExternalProcess()
         {
-            Process process = new Process();
+            var process = new Process();
             SetProcessProperties(process, ConnectionInfo);
             process.Start();
 
@@ -89,43 +77,39 @@ namespace mRemoteNG.Tools
 
         private void SetProcessProperties(Process process, ConnectionInfo startConnectionInfo)
         {
-            ArgumentParser argParser = new ArgumentParser(startConnectionInfo);
+            var argParser = new ExternalToolArgumentParser(startConnectionInfo);
             process.StartInfo.UseShellExecute = true;
             process.StartInfo.FileName = argParser.ParseArguments(FileName);
             process.StartInfo.Arguments = argParser.ParseArguments(Arguments);
         }
-		
-		public void StartIntegrated()
+
+        private void StartIntegrated()
 		{
 			try
 			{
-                ConnectionInfo newConnectionInfo = BuildConnectionInfoForIntegratedApp();
-				Runtime.OpenConnection(newConnectionInfo);
+                var newConnectionInfo = BuildConnectionInfoForIntegratedApp();
+                _connectionInitiator.OpenConnection(newConnectionInfo);
 			}
 			catch (Exception ex)
 			{
-				Runtime.MessageCollector.AddExceptionMessage(message: "ExternalApp.StartIntegrated() failed.", ex: ex, logOnly: true);
+				Runtime.MessageCollector.AddExceptionMessage("ExternalApp.StartIntegrated() failed.", ex);
 			}
 		}
 
         private ConnectionInfo BuildConnectionInfoForIntegratedApp()
         {
-            ConnectionInfo newConnectionInfo = GetAppropriateInstanceOfConnectionInfo();
+            var newConnectionInfo = GetAppropriateInstanceOfConnectionInfo();
             SetConnectionInfoFields(newConnectionInfo);
             return newConnectionInfo;
         }
 
         private ConnectionInfo GetAppropriateInstanceOfConnectionInfo()
         {
-            ConnectionInfo newConnectionInfo = default(ConnectionInfo);
-            if (this.ConnectionInfo == null)
-                newConnectionInfo = new ConnectionInfo();
-            else
-                newConnectionInfo = this.ConnectionInfo.Copy();
+            var newConnectionInfo = ConnectionInfo == null ? new ConnectionInfo() : ConnectionInfo.Clone();
             return newConnectionInfo;
         }
 
-        private void SetConnectionInfoFields(ConnectionInfo newConnectionInfo)
+	    private void SetConnectionInfoFields(ConnectionInfo newConnectionInfo)
         {
             newConnectionInfo.Protocol = ProtocolType.IntApp;
             newConnectionInfo.ExtApp = DisplayName;

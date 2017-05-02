@@ -1,4 +1,3 @@
-using mRemoteNG.My;
 using mRemoteNG.Tools;
 using System;
 using System.ComponentModel;
@@ -79,12 +78,10 @@ namespace mRemoteNG.Themes
 			}
 				
 			Type themeInfoType = (new ThemeInfo()).GetType();
-			object myProperty = null;
-			object otherProperty = null;
-			foreach (System.Reflection.PropertyInfo propertyInfo in themeInfoType.GetProperties())
+		    foreach (System.Reflection.PropertyInfo propertyInfo in themeInfoType.GetProperties())
 			{
-				myProperty = propertyInfo.GetValue(this, null);
-				otherProperty = propertyInfo.GetValue(otherTheme, null);
+				var myProperty = propertyInfo.GetValue(this, null);
+				var otherProperty = propertyInfo.GetValue(otherTheme, null);
 				if (!myProperty.Equals(otherProperty))
 				{
 					return false;
@@ -93,17 +90,23 @@ namespace mRemoteNG.Themes
 				
 			return true;
 		}
+
+        // just fixing a complier warning. We don't use us so returning this value shouldn't be an issue at all.
+        public override int GetHashCode()
+        {
+            return Name.GetHashCode();
+        }
         #endregion
-			
+
         #region Events
-		public event PropertyChangedEventHandler PropertyChanged;
-		protected void NotifyPropertyChanged(string propertyName)
+        public event PropertyChangedEventHandler PropertyChanged;
+
+	    private void NotifyPropertyChanged(string propertyName)
 		{
-			if 
-				(PropertyChanged != null)
-				PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+		    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}
-        #endregion
+
+	    #endregion
 			
         #region Properties
         [Browsable(false)]
@@ -114,7 +117,7 @@ namespace mRemoteNG.Themes
 			{
 				if (_name == value)
 				{
-					return ;
+					return;
 				}
 				_name = value;
 				NotifyPropertyChanged("Name");
@@ -122,7 +125,7 @@ namespace mRemoteNG.Themes
 		}
 			
         #region General
-        [LocalizedAttributes.LocalizedCategory("strThemeCategoryGeneral", 1),
+        [LocalizedAttributes.LocalizedCategory("strThemeCategoryGeneral"),
             LocalizedAttributes.LocalizedDisplayName("strThemeNameWindowBackgroundColor"),
             LocalizedAttributes.LocalizedDescription("strThemeDescriptionWindowBackgroundColor")]
         public Color WindowBackgroundColor
@@ -132,14 +135,14 @@ namespace mRemoteNG.Themes
 			{
 				if (_windowBackgroundColor == value)
 				{
-					return ;
+					return;
 				}
 				_windowBackgroundColor = value;
 				NotifyPropertyChanged("WindowBackgroundColor");
 			}
 		}
 		
-        [LocalizedAttributes.LocalizedCategory("strThemeCategoryGeneral", 1), Browsable(false),
+        [LocalizedAttributes.LocalizedCategory("strThemeCategoryGeneral"), Browsable(false),
             LocalizedAttributes.LocalizedDisplayName("strThemeNameMenuBackgroundColor"),
             LocalizedAttributes.LocalizedDescription("strThemeDescriptionMenuBackgroundColor")]
         public Color MenuBackgroundColor
@@ -149,14 +152,14 @@ namespace mRemoteNG.Themes
 			{
 				if (_menuBackgroundColor == value)
 				{
-					return ;
+					return;
 				}
 				_menuBackgroundColor = value;
 				NotifyPropertyChanged("MenuBackgroundColor");
 			}
 		}
 		
-        [LocalizedAttributes.LocalizedCategory("strThemeCategoryGeneral", 1), Browsable(false),
+        [LocalizedAttributes.LocalizedCategory("strThemeCategoryGeneral"), Browsable(false),
             LocalizedAttributes.LocalizedDisplayName("strThemeNameMenuTextColor"),
             LocalizedAttributes.LocalizedDescription("strThemeDescriptionMenuTextColor")]
         public Color MenuTextColor
@@ -166,14 +169,14 @@ namespace mRemoteNG.Themes
 			{
 				if (_menuTextColor == value)
 				{
-					return ;
+					return;
 				}
 				_menuTextColor = value;
 				NotifyPropertyChanged("MenuTextColor");
 			}
 		}
 		
-        [LocalizedAttributes.LocalizedCategory("strThemeCategoryGeneral", 1),
+        [LocalizedAttributes.LocalizedCategory("strThemeCategoryGeneral"),
             Browsable(false),
             LocalizedAttributes.LocalizedDisplayName("strThemeNameToolbarBackgroundColor"),
             LocalizedAttributes.LocalizedDescription("strThemeDescriptionToolbarBackgroundColor")]
@@ -184,14 +187,14 @@ namespace mRemoteNG.Themes
 			{
 				if (_toolbarBackgroundColor == value || value.A < 255)
 				{
-					return ;
+					return;
 				}
 				_toolbarBackgroundColor = value;
 				NotifyPropertyChanged("ToolbarBackgroundColor");
 			}
 		}
 		
-        [LocalizedAttributes.LocalizedCategory("strThemeCategoryGeneral", 1), Browsable(false),
+        [LocalizedAttributes.LocalizedCategory("strThemeCategoryGeneral"), Browsable(false),
             LocalizedAttributes.LocalizedDisplayName("strThemeNameToolbarTextColor"),
             LocalizedAttributes.LocalizedDescription("strThemeDescriptionToolbarTextColor")]
         public Color ToolbarTextColor
@@ -201,7 +204,7 @@ namespace mRemoteNG.Themes
 			{
 				if (_toolbarTextColor == value)
 				{
-					return ;
+					return;
 				}
 				_toolbarTextColor = value;
 				NotifyPropertyChanged("ToolbarTextColor");
@@ -220,7 +223,7 @@ namespace mRemoteNG.Themes
 			{
 				if (_connectionsPanelBackgroundColor == value || value.A < 255)
 				{
-					return ;
+					return;
 				}
 				_connectionsPanelBackgroundColor = value;
 				NotifyPropertyChanged("ConnectionsPanelBackgroundColor");
@@ -237,7 +240,7 @@ namespace mRemoteNG.Themes
 			{
 				if (_connectionsPanelTextColor == value)
 				{
-					return ;
+					return;
 				}
 				_connectionsPanelTextColor = value;
 				NotifyPropertyChanged("ConnectionsPanelTextColor");
@@ -257,7 +260,7 @@ namespace mRemoteNG.Themes
 			{
 				if (_connectionsPanelTreeLineColor == value)
 				{
-					return ;
+					return;
 				}
 				_connectionsPanelTreeLineColor = value;
 				NotifyPropertyChanged("ConnectionsPanelTreeLineColor");
@@ -277,7 +280,7 @@ namespace mRemoteNG.Themes
 			{
 				if (_searchBoxBackgroundColor == value || value.A < 255)
 				{
-					return ;
+					return;
 				}
 				_searchBoxBackgroundColor = value;
 				NotifyPropertyChanged("SearchBoxBackgroundColor");
@@ -297,7 +300,7 @@ namespace mRemoteNG.Themes
 			{
 				if (_searchBoxTextPromptColor == value)
 				{
-					return ;
+					return;
 				}
 				_searchBoxTextPromptColor = value;
 				NotifyPropertyChanged("SearchBoxTextPromptColor");
@@ -317,7 +320,7 @@ namespace mRemoteNG.Themes
 			{
 				if (_searchBoxTextColor == value)
 				{
-					return ;
+					return;
 				}
 				_searchBoxTextColor = value;
 				NotifyPropertyChanged("SearchBoxTextColor");
@@ -339,7 +342,7 @@ namespace mRemoteNG.Themes
 			{
 				if (_configPanelBackgroundColor == value || value.A < 255)
 				{
-					return ;
+					return;
 				}
 				_configPanelBackgroundColor = value;
 				NotifyPropertyChanged("ConfigPanelBackgroundColor");
@@ -359,7 +362,7 @@ namespace mRemoteNG.Themes
 			{
 				if (_configPanelTextColor == value)
 				{
-					return ;
+					return;
 				}
 				_configPanelTextColor = value;
 				NotifyPropertyChanged("ConfigPanelTextColor");
@@ -379,7 +382,7 @@ namespace mRemoteNG.Themes
 			{
 				if (_configPanelCategoryTextColor == value)
 				{
-					return ;
+					return;
 				}
 				_configPanelCategoryTextColor = value;
 				NotifyPropertyChanged("ConfigPanelCategoryTextColor");
@@ -399,7 +402,7 @@ namespace mRemoteNG.Themes
 			{
 				if (_configPanelHelpBackgroundColor == value || value.A < 255)
 				{
-					return ;
+					return;
 				}
 				_configPanelHelpBackgroundColor = value;
 				NotifyPropertyChanged("ConfigPanelHelpBackgroundColor");
@@ -419,7 +422,7 @@ namespace mRemoteNG.Themes
 			{
 				if (_configPanelHelpTextColor == value)
 				{
-					return ;
+					return;
 				}
 				_configPanelHelpTextColor = value;
 				NotifyPropertyChanged("ConfigPanelHelpTextColor");
@@ -439,7 +442,7 @@ namespace mRemoteNG.Themes
 			{
 				if (_configPanelGridLineColor == value)
 				{
-					return ;
+					return;
 				}
 				_configPanelGridLineColor = value;
 				NotifyPropertyChanged("ConfigPanelGridLineColor");

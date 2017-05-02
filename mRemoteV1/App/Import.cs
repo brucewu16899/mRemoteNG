@@ -1,20 +1,17 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Windows.Forms;
 using mRemoteNG.Config.Import;
 using mRemoteNG.Connection.Protocol;
 using mRemoteNG.Container;
-using mRemoteNG.Tree;
-using mRemoteNG.UI.TaskDialog;
+using mRemoteNG.Tools;
+
 
 namespace mRemoteNG.App
 {
-    public class Import
+    public static class Import
     {
-        #region Private Enumerations
-
         private enum FileType
         {
             Unknown = 0,
@@ -25,12 +22,8 @@ namespace mRemoteNG.App
             PuttyConnectionManager
         }
 
-        #endregion
-
         #region Public Methods
-
-        public static void ImportFromFile(TreeNode rootTreeNode, TreeNode selectedTreeNode,
-            bool alwaysUseSelectedTreeNode = false)
+        public static void ImportFromFile(ContainerInfo importDestinationContainer)
         {
             try
             {
@@ -51,187 +44,84 @@ namespace mRemoteNG.App
                     openFileDialog.Filter = string.Join("|", fileTypes.ToArray());
 
                     if (openFileDialog.ShowDialog() != DialogResult.OK)
-                    {
                         return;
-                    }
-
-                    var parentTreeNode = GetParentTreeNode(rootTreeNode, selectedTreeNode, alwaysUseSelectedTreeNode);
-                    if (parentTreeNode == null)
-                    {
-                        return;
-                    }
 
                     foreach (var fileName in openFileDialog.FileNames)
                     {
                         try
                         {
+                            IConnectionImporter importer;
+                            // ReSharper disable once SwitchStatementMissingSomeCases
                             switch (DetermineFileType(fileName))
                             {
                                 case FileType.mRemoteXml:
-                                    Config.Import.mRemoteNG.Import(fileName, parentTreeNode);
+                                    importer = new mRemoteNGImporter();
                                     break;
                                 case FileType.RemoteDesktopConnection:
-                                    RemoteDesktopConnection.Import(fileName, parentTreeNode);
+                                    importer = new RemoteDesktopConnectionImporter();
                                     break;
                                 case FileType.RemoteDesktopConnectionManager:
-                                    RemoteDesktopConnectionManager.Import(fileName, parentTreeNode);
+                                    importer = new RemoteDesktopConnectionManagerImporter();
                                     break;
                                 case FileType.PuttyConnectionManager:
-                                    PuttyConnectionManager.Import(fileName, parentTreeNode);
+                                    importer = new PuttyConnectionManagerImporter();
                                     break;
                                 default:
                                     throw new FileFormatException("Unrecognized file format.");
                             }
+                            importer.Import(fileName, importDestinationContainer);
                         }
                         catch (Exception ex)
                         {
                             MessageBox.Show(string.Format(Language.strImportFileFailedContent, fileName), Language.strImportFileFailedMainInstruction,
                                             MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
-                            Runtime.MessageCollector.AddExceptionMessage("App.Import.ImportFromFile() failed:1", ex, logOnly: true);
+                            Runtime.MessageCollector.AddExceptionMessage("App.Import.ImportFromFile() failed:1", ex);
                         }
                     }
 
-                    parentTreeNode.Expand();
-                    var parentContainer = (ContainerInfo) parentTreeNode.Tag;
-                    if (parentContainer != null)
-                    {
-                        parentContainer.IsExpanded = true;
-                    }
-
-                    Runtime.SaveConnectionsBG();
+                    Runtime.SaveConnectionsAsync();
                 }
             }
             catch (Exception ex)
             {
-                Runtime.MessageCollector.AddExceptionMessage("App.Import.ImportFromFile() failed:2", ex, logOnly: true);
+                Runtime.MessageCollector.AddExceptionMessage("App.Import.ImportFromFile() failed:2", ex);
             }
         }
 
-        public static void ImportFromActiveDirectory(string ldapPath)
+        public static void ImportFromActiveDirectory(string ldapPath, ContainerInfo importDestinationContainer, bool importSubOU)
         {
             try
             {
-                var rootTreeNode = ConnectionTree.TreeView.Nodes[0];
-                var selectedTreeNode = ConnectionTree.TreeView.SelectedNode;
-
-                var parentTreeNode = GetParentTreeNode(rootTreeNode, selectedTreeNode);
-                if (parentTreeNode == null)
-                {
-                    return;
-                }
-
-                ActiveDirectory.Import(ldapPath, parentTreeNode);
-
-                parentTreeNode.Expand();
-                var parentContainer = (ContainerInfo) parentTreeNode.Tag;
-                if (parentContainer != null)
-                {
-                    parentContainer.IsExpanded = true;
-                }
-
-                Runtime.SaveConnectionsBG();
+                ActiveDirectoryImporter.Import(ldapPath, importDestinationContainer, importSubOU);
+                Runtime.SaveConnectionsAsync();
             }
             catch (Exception ex)
             {
-                Runtime.MessageCollector.AddExceptionMessage("App.Import.ImportFromActiveDirectory() failed.", ex,
-                    logOnly: true);
+                Runtime.MessageCollector.AddExceptionMessage("App.Import.ImportFromActiveDirectory() failed.", ex);
             }
         }
 
-        public static void ImportFromPortScan(IEnumerable hosts, ProtocolType protocol)
+        public static void ImportFromPortScan(IEnumerable<ScanHost> hosts, ProtocolType protocol, ContainerInfo importDestinationContainer)
         {
             try
             {
-                var rootTreeNode = ConnectionTree.TreeView.Nodes[0];
-                var selectedTreeNode = ConnectionTree.TreeView.SelectedNode;
-
-                var parentTreeNode = GetParentTreeNode(rootTreeNode, selectedTreeNode);
-                if (parentTreeNode == null)
-                {
-                    return;
-                }
-
-                PortScan.Import(hosts, protocol, parentTreeNode);
-
-                parentTreeNode.Expand();
-                var parentContainer = (ContainerInfo) parentTreeNode.Tag;
-                if (parentContainer != null)
-                {
-                    parentContainer.IsExpanded = true;
-                }
-
-                Runtime.SaveConnectionsBG();
+                var importer = new PortScanImporter(protocol);
+                importer.Import(hosts, importDestinationContainer);
+                Runtime.SaveConnectionsAsync();
             }
             catch (Exception ex)
             {
-                Runtime.MessageCollector.AddExceptionMessage("App.Import.ImportFromPortScan() failed.", ex,
-                    logOnly: true);
+                Runtime.MessageCollector.AddExceptionMessage("App.Import.ImportFromPortScan() failed.", ex);
             }
         }
-
         #endregion
-
-        #region Private Methods
-
-        private static TreeNode GetParentTreeNode(TreeNode rootTreeNode, TreeNode selectedTreeNode,
-            bool alwaysUseSelectedTreeNode = false)
-        {
-            TreeNode parentTreeNode;
-
-            selectedTreeNode = GetContainerTreeNode(selectedTreeNode);
-            if (selectedTreeNode == null || selectedTreeNode == rootTreeNode)
-            {
-                parentTreeNode = rootTreeNode;
-            }
-            else
-            {
-                if (alwaysUseSelectedTreeNode)
-                {
-                    parentTreeNode = GetContainerTreeNode(selectedTreeNode);
-                }
-                else
-                {
-                    CTaskDialog.ShowCommandBox(Application.ProductName, Language.strImportLocationMainInstruction,
-                        Language.strImportLocationContent, "", "", "",
-                        string.Format(Language.strImportLocationCommandButtons, Environment.NewLine, rootTreeNode.Text,
-                            selectedTreeNode.Text), true, ESysIcons.Question, 0);
-                    switch (CTaskDialog.CommandButtonResult)
-                    {
-                        case 0: // Root
-                            parentTreeNode = rootTreeNode;
-                            break;
-                        case 1: // Selected Folder
-                            parentTreeNode = GetContainerTreeNode(selectedTreeNode);
-                            break;
-                        default: // Cancel
-                            parentTreeNode = null;
-                            break;
-                    }
-                }
-            }
-
-            return parentTreeNode;
-        }
-
-        private static TreeNode GetContainerTreeNode(TreeNode treeNode)
-        {
-            if ((ConnectionTreeNode.GetNodeType(treeNode) == TreeNodeType.Root) ||
-                (ConnectionTreeNode.GetNodeType(treeNode) == TreeNodeType.Container))
-            {
-                return treeNode;
-            }
-            if (ConnectionTreeNode.GetNodeType(treeNode) == TreeNodeType.Connection)
-            {
-                return treeNode.Parent;
-            }
-            return null;
-        }
 
         private static FileType DetermineFileType(string fileName)
         {
             // TODO: Use the file contents to determine the file type instead of trusting the extension
-            var fileExtension = Convert.ToString(Path.GetExtension(fileName).ToLowerInvariant());
-            switch (fileExtension)
+            var extension = Path.GetExtension(fileName);
+            if (extension == null) return FileType.Unknown;
+            switch (extension.ToLowerInvariant())
             {
                 case ".xml":
                     return FileType.mRemoteXml;
@@ -245,7 +135,5 @@ namespace mRemoteNG.App
                     return FileType.Unknown;
             }
         }
-
-        #endregion
     }
 }

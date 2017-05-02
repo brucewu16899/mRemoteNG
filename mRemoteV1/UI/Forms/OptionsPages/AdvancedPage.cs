@@ -36,18 +36,13 @@ namespace mRemoteNG.UI.Forms.OptionsPages
             btnBrowseCustomPuttyPath.Text = Language.strButtonBrowse;
             chkUseCustomPuttyPath.Text = Language.strCheckboxPuttyPath;
             chkAutomaticallyGetSessionInfo.Text = Language.strAutomaticallyGetSessionInfo;
-            chkWriteLogFile.Text = Language.strWriteLogFile;
             lblUVNCSCPort.Text = Language.strUltraVNCSCListeningPort;
-            chkEncryptCompleteFile.Text = Language.strEncryptCompleteConnectionFile;
         }
 
         public override void LoadSettings()
         {
             base.SaveSettings();
 
-            chkWriteLogFile.Checked = Settings.Default.WriteLogFile;
-
-            chkEncryptCompleteFile.Checked = Settings.Default.EncryptCompleteConnectionsFile;
             chkAutomaticallyGetSessionInfo.Checked = Settings.Default.AutomaticallyGetSessionInfo;
             chkAutomaticReconnect.Checked = Settings.Default.ReconnectOnDisconnect;
             numPuttyWaitTime.Value = Settings.Default.MaxPuttyWaitTime;
@@ -61,8 +56,6 @@ namespace mRemoteNG.UI.Forms.OptionsPages
 
         public override void SaveSettings()
         {
-            Settings.Default.WriteLogFile = chkWriteLogFile.Checked;
-            Settings.Default.EncryptCompleteConnectionsFile = chkEncryptCompleteFile.Checked;
             Settings.Default.AutomaticallyGetSessionInfo = chkAutomaticallyGetSessionInfo.Checked;
             Settings.Default.ReconnectOnDisconnect = chkAutomaticReconnect.Checked;
 
@@ -80,7 +73,7 @@ namespace mRemoteNG.UI.Forms.OptionsPages
             if (puttyPathChanged)
             {
                 PuttyBase.PuttyPath = Settings.Default.UseCustomPuttyPath ? Settings.Default.CustomPuttyPath : GeneralAppInfo.PuttyPath;
-                Sessions.AddSessionsToTree();
+                PuttySessionsManager.Instance.AddSessions();
             }
 
             Settings.Default.MaxPuttyWaitTime = (int) numPuttyWaitTime.Value;
@@ -95,19 +88,19 @@ namespace mRemoteNG.UI.Forms.OptionsPages
 
         #region Event Handlers
 
-        public void chkUseCustomPuttyPath_CheckedChanged(object sender, EventArgs e)
+        private void chkUseCustomPuttyPath_CheckedChanged(object sender, EventArgs e)
         {
             txtCustomPuttyPath.Enabled = chkUseCustomPuttyPath.Checked;
             btnBrowseCustomPuttyPath.Enabled = chkUseCustomPuttyPath.Checked;
             SetPuttyLaunchButtonEnabled();
         }
 
-        public void txtCustomPuttyPath_TextChanged(object sender, EventArgs e)
+        private void txtCustomPuttyPath_TextChanged(object sender, EventArgs e)
         {
             SetPuttyLaunchButtonEnabled();
         }
 
-        public void btnBrowseCustomPuttyPath_Click(object sender, EventArgs e)
+        private void btnBrowseCustomPuttyPath_Click(object sender, EventArgs e)
         {
             using (var openFileDialog = new OpenFileDialog())
             {
@@ -124,7 +117,7 @@ namespace mRemoteNG.UI.Forms.OptionsPages
             }
         }
 
-        public void btnLaunchPutty_Click(object sender, EventArgs e)
+        private void btnLaunchPutty_Click(object sender, EventArgs e)
         {
             try
             {
@@ -139,7 +132,7 @@ namespace mRemoteNG.UI.Forms.OptionsPages
             {
                 MessageBox.Show(Language.strErrorCouldNotLaunchPutty, Application.ProductName,
                                 MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
-                Runtime.MessageCollector.AddExceptionMessage(Language.strErrorCouldNotLaunchPutty, ex, logOnly: true);
+                Runtime.MessageCollector.AddExceptionMessage(Language.strErrorCouldNotLaunchPutty, ex);
             }
         }
 

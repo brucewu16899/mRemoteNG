@@ -6,43 +6,38 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
-
+using mRemoteNG.Security;
+using mRemoteNG.Security.SymmetricEncryption;
+using mRemoteNG.Tools.Cmdline;
+// ReSharper disable ArrangeAccessorOwnerBody
 
 namespace mRemoteNG.Connection.Protocol
 {
 	public class PuttyBase : ProtocolBase
 	{	
 		private const int IDM_RECONF = 0x50; // PuTTY Settings Menu ID
-		bool _isPuttyNg;
+	    private bool _isPuttyNg;
 
 	    #region Public Properties
-        public Putty_Protocol PuttyProtocol { get; set; }
 
-	    public Putty_SSHVersion PuttySSHVersion { get; set; }
+	    protected Putty_Protocol PuttyProtocol { private get; set; }
 
-	    public IntPtr PuttyHandle { get; set; }
+        protected Putty_SSHVersion PuttySSHVersion { private get; set; }
 
-	    public Process PuttyProcess { get; set; }
+	    private IntPtr PuttyHandle { get; set; }
+
+	    private Process PuttyProcess { get; set; }
 
 	    public static string PuttyPath { get; set; }
 
 	    public bool Focused
-		{
-			get
-			{
-				if (NativeMethods.GetForegroundWindow() == PuttyHandle)
-					return true;
-				return false;
-			}
-		}
-        #endregion
+	    {
+	        get { return NativeMethods.GetForegroundWindow() == PuttyHandle; }
+	    }
 
-        public PuttyBase()
-        {
+	    #endregion
 
-        }
-
-        #region Private Events & Handlers
+	    #region Private Events & Handlers
 		private void ProcessExited(object sender, EventArgs e)
 		{
             Event_Closed(this);
@@ -55,50 +50,57 @@ namespace mRemoteNG.Connection.Protocol
 			try
 			{
 				_isPuttyNg = PuttyTypeDetector.GetPuttyType() == PuttyTypeDetector.PuttyType.PuttyNg;
-						
-				PuttyProcess = new Process();
-				PuttyProcess.StartInfo.UseShellExecute = false;
-				PuttyProcess.StartInfo.FileName = PuttyPath;
-						
-				CommandLineArguments arguments = new CommandLineArguments();
-				arguments.EscapeForShell = false;
-						
-				arguments.Add("-load", InterfaceControl.Info.PuttySession);
+
+			    PuttyProcess = new Process
+			    {
+			        StartInfo =
+			        {
+			            UseShellExecute = false,
+			            FileName = PuttyPath
+			        }
+			    };
+
+			    var arguments = new CommandLineArguments {EscapeForShell = false};
+
+			    arguments.Add("-load", InterfaceControl.Info.PuttySession);
 						
 				if (!(InterfaceControl.Info is PuttySessionInfo))
 				{
-					arguments.Add("-" + PuttyProtocol.ToString());
+					arguments.Add("-" + PuttyProtocol);
 							
 					if (PuttyProtocol == Putty_Protocol.ssh)
 					{
-						string username = "";
-						string password = "";
+						var username = "";
+						var password = "";
 								
-						if (!string.IsNullOrEmpty(InterfaceControl.Info.Username))
+						if (!string.IsNullOrEmpty(InterfaceControl.Info.CredentialRecord?.Username))
 						{
-							username = InterfaceControl.Info.Username;
+							username = InterfaceControl.Info.CredentialRecord?.Username;
 						}
 						else
 						{
-							if (Settings.Default.EmptyCredentials == "windows")
-							{
-								username = Environment.UserName;
-							}
-							else if (Settings.Default.EmptyCredentials == "custom")
-							{
-								username = Convert.ToString(Settings.Default.DefaultUsername);
-							}
+						    // ReSharper disable once SwitchStatementMissingSomeCases
+						    switch (Settings.Default.EmptyCredentials)
+						    {
+						        case "windows":
+						            username = Environment.UserName;
+						            break;
+						        case "custom":
+						            username = Settings.Default.DefaultUsername;
+						            break;
+						    }
 						}
 								
-						if (!string.IsNullOrEmpty(InterfaceControl.Info.Password))
+						if (!string.IsNullOrEmpty(InterfaceControl.Info.CredentialRecord?.Password.ConvertToUnsecureString()))
 						{
-							password = InterfaceControl.Info.Password;
+							password = InterfaceControl.Info.CredentialRecord?.Password.ConvertToUnsecureString();
 						}
 						else
 						{
 							if (Settings.Default.EmptyCredentials == "custom")
 							{
-								password = Security.Crypt.Decrypt(Convert.ToString(Settings.Default.DefaultPassword), App.Info.GeneralAppInfo.EncryptionKey);
+                                var cryptographyProvider = new LegacyRijndaelCryptographyProvider();
+                                password = cryptographyProvider.Decrypt(Settings.Default.DefaultPassword, Runtime.EncryptionKey);
 							}
 						}
 								
@@ -132,10 +134,10 @@ namespace mRemoteNG.Connection.Protocol
 				PuttyProcess.Exited += ProcessExited;
 						
 				PuttyProcess.Start();
-				PuttyProcess.WaitForInputIdle(Convert.ToInt32(Settings.Default.MaxPuttyWaitTime * 1000));
+				PuttyProcess.WaitForInputIdle(Settings.Default.MaxPuttyWaitTime * 1000);
 						
-				int startTicks = Environment.TickCount;
-				while (PuttyHandle.ToInt32() == 0 & Environment.TickCount < startTicks + (Settings.Default.MaxPuttyWaitTime * 1000))
+				var startTicks = Environment.TickCount;
+				while (PuttyHandle.ToInt32() == 0 & Environment.TickCount < startTicks + Settings.Default.MaxPuttyWaitTime * 1000)
 				{
 					if (_isPuttyNg)
 					{
@@ -159,9 +161,9 @@ namespace mRemoteNG.Connection.Protocol
 				}
 						
 				Runtime.MessageCollector.AddMessage(MessageClass.InformationMsg, Language.strPuttyStuff, true);
-				Runtime.MessageCollector.AddMessage(MessageClass.InformationMsg, string.Format(Language.strPuttyHandle, PuttyHandle.ToString()), true);
+				Runtime.MessageCollector.AddMessage(MessageClass.InformationMsg, string.Format(Language.strPuttyHandle, PuttyHandle), true);
 				Runtime.MessageCollector.AddMessage(MessageClass.InformationMsg, string.Format(Language.strPuttyTitle, PuttyProcess.MainWindowTitle), true);
-				Runtime.MessageCollector.AddMessage(MessageClass.InformationMsg, string.Format(Language.strPuttyParentHandle, InterfaceControl.Parent.Handle.ToString()), true);
+				Runtime.MessageCollector.AddMessage(MessageClass.InformationMsg, string.Format(Language.strPuttyParentHandle, InterfaceControl.Parent.Handle), true);
 						
 				Resize(this, new EventArgs());
 				base.Connect();
@@ -180,7 +182,7 @@ namespace mRemoteNG.Connection.Protocol
 			{
 				if (ConnectionWindow.InTabDrag)
 				{
-					return ;
+					return;
 				}
 				NativeMethods.SetForegroundWindow(PuttyHandle);
 			}
@@ -196,9 +198,9 @@ namespace mRemoteNG.Connection.Protocol
 			{
 				if (InterfaceControl.Size == Size.Empty)
 				{
-					return ;
+					return;
 				}
-                NativeMethods.MoveWindow(PuttyHandle, Convert.ToInt32(-SystemInformation.FrameBorderSize.Width), Convert.ToInt32(-(SystemInformation.CaptionHeight + SystemInformation.FrameBorderSize.Height)), InterfaceControl.Width + (SystemInformation.FrameBorderSize.Width * 2), InterfaceControl.Height + SystemInformation.CaptionHeight + (SystemInformation.FrameBorderSize.Height * 2), true);
+                NativeMethods.MoveWindow(PuttyHandle, -SystemInformation.FrameBorderSize.Width, -(SystemInformation.CaptionHeight + SystemInformation.FrameBorderSize.Height), InterfaceControl.Width + SystemInformation.FrameBorderSize.Width * 2, InterfaceControl.Height + SystemInformation.CaptionHeight + SystemInformation.FrameBorderSize.Height * 2, true);
 			}
 			catch (Exception ex)
 			{
@@ -236,7 +238,7 @@ namespace mRemoteNG.Connection.Protocol
 		{
 			try
 			{
-                NativeMethods.PostMessage(PuttyHandle, NativeMethods.WM_SYSCOMMAND, IDM_RECONF, 0);
+                NativeMethods.PostMessage(PuttyHandle, NativeMethods.WM_SYSCOMMAND, (IntPtr)IDM_RECONF, (IntPtr)0);
                 NativeMethods.SetForegroundWindow(PuttyHandle);
 			}
 			catch (Exception ex)
@@ -247,7 +249,8 @@ namespace mRemoteNG.Connection.Protocol
         #endregion
 				
         #region Enums
-		public enum Putty_Protocol
+
+	    protected enum Putty_Protocol
 		{
 			ssh = 0,
 			telnet = 1,
@@ -255,8 +258,8 @@ namespace mRemoteNG.Connection.Protocol
 			raw = 3,
 			serial = 4
 		}
-				
-		public enum Putty_SSHVersion
+
+	    protected enum Putty_SSHVersion
 		{
 			ssh1 = 1,
 			ssh2 = 2

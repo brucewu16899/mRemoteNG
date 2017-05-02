@@ -1,174 +1,70 @@
-using System;
-using System.Diagnostics;
-using System.Windows.Forms;
-using mRemoteNG.UI.Window;
-using mRemoteNG.App;
-using mRemoteNG.UI.Forms;
-using WeifenLuo.WinFormsUI.Docking;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Linq;
+// ReSharper disable ArrangeAccessorOwnerBody
 
 namespace mRemoteNG.Messages
 {
-    public class MessageCollector
+    public class MessageCollector : INotifyCollectionChanged
     {
-        private Timer _ECTimer;
-        private ErrorAndInfoWindow _MCForm;
+        private readonly IList<IMessage> _messageList;
 
-        public ErrorAndInfoWindow MCForm
-		{
-			get { return _MCForm; }
-			set { _MCForm = value; }
-		}
-
-        public MessageCollector(ErrorAndInfoWindow MessageCollectorForm)
+        public IEnumerable<IMessage> Messages
         {
-            _MCForm = MessageCollectorForm;
-            CreateTimer();
+            get { return _messageList; }
         }
 
-        #region Public Methods
-        public void AddMessage(MessageClass MsgClass, string MsgText, bool OnlyLog = false)
+        public MessageCollector()
         {
-            Message nMsg = new Message(MsgClass, MsgText, DateTime.Now);
+            _messageList = new List<IMessage>();
+        }
 
-            if (nMsg.MsgClass == MessageClass.ReportMsg)
+        public void AddMessage(MessageClass messageClass, string messageText, bool onlyLog = false)
+        {
+            var message = new Message(messageClass, messageText, onlyLog);
+            AddMessage(message);
+        }
+
+        public void AddMessage(IMessage message)
+        {
+            AddMessages(new [] {message});
+        }
+
+        public void AddMessages(IEnumerable<IMessage> messages)
+        {
+            var newMessages = new List<IMessage>();
+            foreach (var message in messages)
             {
-                AddReportMessage(nMsg);
-                return;
+                if (_messageList.Contains(message)) continue;
+                _messageList.Add(message);
+                newMessages.Add(message);
             }
-
-            if (Settings.Default.SwitchToMCOnInformation && nMsg.MsgClass == MessageClass.InformationMsg)
-                AddInfoMessage(OnlyLog, nMsg);
-            
-            if (Settings.Default.SwitchToMCOnWarning && nMsg.MsgClass == MessageClass.WarningMsg)
-                AddWarningMessage(OnlyLog, nMsg);
-
-            if (Settings.Default.SwitchToMCOnError && nMsg.MsgClass == MessageClass.ErrorMsg)
-                AddErrorMessage(OnlyLog, nMsg);
-
-            if (!OnlyLog)
-            {
-                if (Settings.Default.ShowNoMessageBoxes)
-                    _ECTimer.Enabled = true;
-                else
-                    ShowMessageBox(nMsg);
-
-                ListViewItem lvItem = BuildListViewItem(nMsg);
-                AddToList(lvItem);
-            }
+            if (newMessages.Any())
+                RaiseCollectionChangedEvent(NotifyCollectionChangedAction.Add, newMessages);
         }
 
-        private void AddInfoMessage(bool OnlyLog, Message nMsg)
+        public void AddExceptionMessage(string message, Exception ex, MessageClass msgClass = MessageClass.ErrorMsg, bool logOnly = true)
         {
-            Debug.Print("Info: " + nMsg.MsgText);
-            if (Settings.Default.WriteLogFile)
-                Logger.Instance.Info(nMsg.MsgText);
+            AddMessage(msgClass, message + Environment.NewLine + Tools.MiscTools.GetExceptionMessageRecursive(ex));
         }
 
-        private void AddWarningMessage(bool OnlyLog, Message nMsg)
+        public void AddExceptionStackTrace(string message, Exception ex, MessageClass msgClass = MessageClass.ErrorMsg)
         {
-            Debug.Print("Warning: " + nMsg.MsgText);
-            if (Settings.Default.WriteLogFile)
-                Logger.Instance.Warn(nMsg.MsgText);
+            AddMessage(msgClass, message + Environment.NewLine + ex.StackTrace);
         }
 
-        private void AddErrorMessage(bool OnlyLog, Message nMsg)
+        public void ClearMessages()
         {
-            Debug.Print("Error: " + nMsg.MsgText);
-            Logger.Instance.Error(nMsg.MsgText);
+            _messageList.Clear();
         }
 
-        private static void AddReportMessage(Message nMsg)
-        {
-            Debug.Print("Report: " + nMsg.MsgText);
-            if (Settings.Default.WriteLogFile)
-                Logger.Instance.Info(nMsg.MsgText);
-        }
+        public event NotifyCollectionChangedEventHandler CollectionChanged;
 
-        private static ListViewItem BuildListViewItem(Message nMsg)
+        private void RaiseCollectionChangedEvent(NotifyCollectionChangedAction action, IList items)
         {
-            ListViewItem lvItem = new ListViewItem();
-            lvItem.ImageIndex = Convert.ToInt32(nMsg.MsgClass);
-            lvItem.Text = nMsg.MsgText.Replace(Environment.NewLine, "  ");
-            lvItem.Tag = nMsg;
-            return lvItem;
+            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(action, items));
         }
-
-        public void AddExceptionMessage(string message, Exception ex, MessageClass msgClass = MessageClass.ErrorMsg, bool logOnly = false)
-        {
-            AddMessage(msgClass, message + Environment.NewLine + Tools.MiscTools.GetExceptionMessageRecursive(ex), logOnly);
-        }
-        #endregion
-
-        #region Private Methods
-        private void CreateTimer()
-        {
-            _ECTimer = new Timer();
-            _ECTimer.Enabled = false;
-            _ECTimer.Interval = 300;
-            _ECTimer.Tick += SwitchTimerTick;
-        }
-
-        private void SwitchTimerTick(object sender, EventArgs e)
-        {
-            SwitchToMessage();
-            _ECTimer.Enabled = false;
-        }
-
-        private void SwitchToMessage()
-        {
-            _MCForm.PreviousActiveForm = (DockContent)frmMain.Default.pnlDock.ActiveContent;
-            ShowMCForm();
-            _MCForm.lvErrorCollector.Focus();
-            _MCForm.lvErrorCollector.SelectedItems.Clear();
-            _MCForm.lvErrorCollector.Items[0].Selected = true;
-            _MCForm.lvErrorCollector.FocusedItem = _MCForm.lvErrorCollector.Items[0];
-        }
-
-        private static void ShowMessageBox(Message Msg)
-        {
-            switch (Msg.MsgClass)
-            {
-                case MessageClass.InformationMsg:
-                    MessageBox.Show(Msg.MsgText, string.Format(Language.strTitleInformation, Msg.MsgDate), MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    break;
-                case MessageClass.WarningMsg:
-                    MessageBox.Show(Msg.MsgText, string.Format(Language.strTitleWarning, Msg.MsgDate), MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    break;
-                case MessageClass.ErrorMsg:
-                    MessageBox.Show(Msg.MsgText, string.Format(Language.strTitleError, Msg.MsgDate), MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    break;
-            }
-        }
-        #endregion
-		
-        #region Delegates
-		private delegate void ShowMCFormCB();
-		private void ShowMCForm()
-		{
-			if (frmMain.Default.pnlDock.InvokeRequired)
-			{
-				ShowMCFormCB d = new ShowMCFormCB(ShowMCForm);
-				frmMain.Default.pnlDock.Invoke(d);
-			}
-			else
-			{
-                _MCForm.Show(frmMain.Default.pnlDock);
-			}
-		}
-
-        delegate void AddToListCB(ListViewItem lvItem);
-        private void AddToList(ListViewItem lvItem)
-        {
-            if (_MCForm.lvErrorCollector.InvokeRequired)
-            {
-                AddToListCB d = new AddToListCB(AddToList);
-                _MCForm.lvErrorCollector.Invoke(d, new object[] { lvItem });
-            }
-            else
-            {
-                _MCForm.lvErrorCollector.Items.Insert(0, lvItem);
-            }
-        }
-        #endregion
-	}
+    }
 }

@@ -1,6 +1,3 @@
-using System;
-using mRemoteNG.My;
-
 namespace mRemoteNG.UI.Forms.OptionsPages
 {
     public partial class TabsPanelsPage
@@ -27,57 +24,36 @@ namespace mRemoteNG.UI.Forms.OptionsPages
             chkIdentifyQuickConnectTabs.Text = Language.strIdentifyQuickConnectTabs;
             chkDoubleClickClosesTab.Text = Language.strDoubleClickTabClosesIt;
             chkAlwaysShowPanelSelectionDlg.Text = Language.strAlwaysShowPanelSelection;
-
-            chkUseOnlyErrorsAndInfosPanel.Text = Language.strUseOnlyErrorsAndInfosPanel;
-            lblSwitchToErrorsAndInfos.Text = Language.strSwitchToErrorsAndInfos;
-            chkMCInformation.Text = Language.strInformations;
-            chkMCWarnings.Text = Language.strWarnings;
-            chkMCErrors.Text = Language.strErrors;
         }
 
         public override void LoadSettings()
         {
             base.SaveSettings();
 
-            chkAlwaysShowPanelTabs.Checked = mRemoteNG.Settings.Default.AlwaysShowPanelTabs;
-            chkOpenNewTabRightOfSelected.Checked = mRemoteNG.Settings.Default.OpenTabsRightOfSelected;
-            chkShowLogonInfoOnTabs.Checked = mRemoteNG.Settings.Default.ShowLogonInfoOnTabs;
-            chkShowProtocolOnTabs.Checked = mRemoteNG.Settings.Default.ShowProtocolOnTabs;
-            chkIdentifyQuickConnectTabs.Checked = mRemoteNG.Settings.Default.IdentifyQuickConnectTabs;
-            chkDoubleClickClosesTab.Checked = mRemoteNG.Settings.Default.DoubleClickOnTabClosesIt;
-            chkAlwaysShowPanelSelectionDlg.Checked = mRemoteNG.Settings.Default.AlwaysShowPanelSelectionDlg;
-
-            chkUseOnlyErrorsAndInfosPanel.Checked = mRemoteNG.Settings.Default.ShowNoMessageBoxes;
-            chkMCInformation.Checked = mRemoteNG.Settings.Default.SwitchToMCOnInformation;
-            chkMCWarnings.Checked = mRemoteNG.Settings.Default.SwitchToMCOnWarning;
-            chkMCErrors.Checked = mRemoteNG.Settings.Default.SwitchToMCOnError;
+            chkAlwaysShowPanelTabs.Checked = Settings.Default.AlwaysShowPanelTabs;
+            chkOpenNewTabRightOfSelected.Checked = Settings.Default.OpenTabsRightOfSelected;
+            chkShowLogonInfoOnTabs.Checked = Settings.Default.ShowLogonInfoOnTabs;
+            chkShowProtocolOnTabs.Checked = Settings.Default.ShowProtocolOnTabs;
+            chkIdentifyQuickConnectTabs.Checked = Settings.Default.IdentifyQuickConnectTabs;
+            chkDoubleClickClosesTab.Checked = Settings.Default.DoubleClickOnTabClosesIt;
+            chkAlwaysShowPanelSelectionDlg.Checked = Settings.Default.AlwaysShowPanelSelectionDlg;
         }
 
         public override void SaveSettings()
         {
             base.SaveSettings();
 
-            mRemoteNG.Settings.Default.AlwaysShowPanelTabs = chkAlwaysShowPanelTabs.Checked;
-            frmMain.Default.ShowHidePanelTabs();
+            Settings.Default.AlwaysShowPanelTabs = chkAlwaysShowPanelTabs.Checked;
+            FrmMain.Default.ShowHidePanelTabs();
 
-            mRemoteNG.Settings.Default.OpenTabsRightOfSelected = chkOpenNewTabRightOfSelected.Checked;
-            mRemoteNG.Settings.Default.ShowLogonInfoOnTabs = chkShowLogonInfoOnTabs.Checked;
-            mRemoteNG.Settings.Default.ShowProtocolOnTabs = chkShowProtocolOnTabs.Checked;
-            mRemoteNG.Settings.Default.IdentifyQuickConnectTabs = chkIdentifyQuickConnectTabs.Checked;
-            mRemoteNG.Settings.Default.DoubleClickOnTabClosesIt = chkDoubleClickClosesTab.Checked;
-            mRemoteNG.Settings.Default.AlwaysShowPanelSelectionDlg = chkAlwaysShowPanelSelectionDlg.Checked;
+            Settings.Default.OpenTabsRightOfSelected = chkOpenNewTabRightOfSelected.Checked;
+            Settings.Default.ShowLogonInfoOnTabs = chkShowLogonInfoOnTabs.Checked;
+            Settings.Default.ShowProtocolOnTabs = chkShowProtocolOnTabs.Checked;
+            Settings.Default.IdentifyQuickConnectTabs = chkIdentifyQuickConnectTabs.Checked;
+            Settings.Default.DoubleClickOnTabClosesIt = chkDoubleClickClosesTab.Checked;
+            Settings.Default.AlwaysShowPanelSelectionDlg = chkAlwaysShowPanelSelectionDlg.Checked;
 
-            mRemoteNG.Settings.Default.ShowNoMessageBoxes = chkUseOnlyErrorsAndInfosPanel.Checked;
-            mRemoteNG.Settings.Default.SwitchToMCOnInformation = chkMCInformation.Checked;
-            mRemoteNG.Settings.Default.SwitchToMCOnWarning = chkMCWarnings.Checked;
-            mRemoteNG.Settings.Default.SwitchToMCOnError = chkMCErrors.Checked;
-        }
-
-        public void chkUseOnlyErrorsAndInfosPanel_CheckedChanged(object sender, EventArgs e)
-        {
-            chkMCInformation.Enabled = chkUseOnlyErrorsAndInfosPanel.Checked;
-            chkMCWarnings.Enabled = chkUseOnlyErrorsAndInfosPanel.Checked;
-            chkMCErrors.Enabled = chkUseOnlyErrorsAndInfosPanel.Checked;
+            Settings.Default.Save();
         }
     }
 }

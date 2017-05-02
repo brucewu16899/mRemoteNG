@@ -35,6 +35,7 @@ namespace mRemoteNG.UI.Window
 				
 		private void InitializeComponent()
 		{
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(PortScanWindow));
             this.ipStart = new mRemoteNG.UI.Controls.IPTextBox();
             this.ipEnd = new mRemoteNG.UI.Controls.IPTextBox();
@@ -42,6 +43,14 @@ namespace mRemoteNG.UI.Window
             this.lblEndIP = new System.Windows.Forms.Label();
             this.btnScan = new System.Windows.Forms.Button();
             this.lvHosts = new System.Windows.Forms.ListView();
+            this.resultsMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.importHTTPToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.importHTTPSToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.importRDPToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.importRloginToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.importSSH2ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.importTelnetToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.importVNCToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.btnImport = new System.Windows.Forms.Button();
             this.cbProtocol = new System.Windows.Forms.ComboBox();
             this.lblOnlyImport = new System.Windows.Forms.Label();
@@ -62,6 +71,7 @@ namespace mRemoteNG.UI.Window
             this.Label2 = new System.Windows.Forms.Label();
             this.Label1 = new System.Windows.Forms.Label();
             this.pnlImport = new System.Windows.Forms.Panel();
+            this.resultsMenuStrip.SuspendLayout();
             this.pnlPorts.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.portEnd)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.portStart)).BeginInit();
@@ -89,7 +99,7 @@ namespace mRemoteNG.UI.Window
             this.lblStartIP.AutoSize = true;
             this.lblStartIP.Location = new System.Drawing.Point(12, 7);
             this.lblStartIP.Name = "lblStartIP";
-            this.lblStartIP.Size = new System.Drawing.Size(57, 19);
+            this.lblStartIP.Size = new System.Drawing.Size(46, 13);
             this.lblStartIP.TabIndex = 0;
             this.lblStartIP.Text = "Start IP:";
             // 
@@ -98,7 +108,7 @@ namespace mRemoteNG.UI.Window
             this.lblEndIP.AutoSize = true;
             this.lblEndIP.Location = new System.Drawing.Point(148, 7);
             this.lblEndIP.Name = "lblEndIP";
-            this.lblEndIP.Size = new System.Drawing.Size(51, 19);
+            this.lblEndIP.Size = new System.Drawing.Size(42, 13);
             this.lblEndIP.TabIndex = 5;
             this.lblEndIP.Text = "End IP:";
             // 
@@ -106,9 +116,10 @@ namespace mRemoteNG.UI.Window
             // 
             this.btnScan.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnScan.Image = global::mRemoteNG.Resources.Search;
-            this.btnScan.Location = new System.Drawing.Point(597, 9);
+            this.btnScan.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.btnScan.Location = new System.Drawing.Point(592, 7);
             this.btnScan.Name = "btnScan";
-            this.btnScan.Size = new System.Drawing.Size(86, 58);
+            this.btnScan.Size = new System.Drawing.Size(100, 60);
             this.btnScan.TabIndex = 20;
             this.btnScan.Text = "&Scan";
             this.btnScan.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
@@ -120,21 +131,84 @@ namespace mRemoteNG.UI.Window
             this.lvHosts.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.lvHosts.ContextMenuStrip = this.resultsMenuStrip;
             this.lvHosts.FullRowSelect = true;
             this.lvHosts.GridLines = true;
             this.lvHosts.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
             this.lvHosts.HideSelection = false;
             this.lvHosts.Location = new System.Drawing.Point(12, 73);
             this.lvHosts.Name = "lvHosts";
-            this.lvHosts.Size = new System.Drawing.Size(671, 265);
+            this.lvHosts.Size = new System.Drawing.Size(680, 290);
             this.lvHosts.TabIndex = 26;
             this.lvHosts.UseCompatibleStateImageBehavior = false;
             this.lvHosts.View = System.Windows.Forms.View.Details;
             // 
+            // resultsMenuStrip
+            // 
+            this.resultsMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.importHTTPToolStripMenuItem,
+            this.importHTTPSToolStripMenuItem,
+            this.importRDPToolStripMenuItem,
+            this.importRloginToolStripMenuItem,
+            this.importSSH2ToolStripMenuItem,
+            this.importTelnetToolStripMenuItem,
+            this.importVNCToolStripMenuItem});
+            this.resultsMenuStrip.Name = "resultsMenuStrip";
+            this.resultsMenuStrip.Size = new System.Drawing.Size(150, 158);
+            // 
+            // importHTTPToolStripMenuItem
+            // 
+            this.importHTTPToolStripMenuItem.Name = "importHTTPToolStripMenuItem";
+            this.importHTTPToolStripMenuItem.Size = new System.Drawing.Size(149, 22);
+            this.importHTTPToolStripMenuItem.Text = "Import HTTP";
+            this.importHTTPToolStripMenuItem.Click += new System.EventHandler(this.importHTTPToolStripMenuItem_Click);
+            // 
+            // importHTTPSToolStripMenuItem
+            // 
+            this.importHTTPSToolStripMenuItem.Name = "importHTTPSToolStripMenuItem";
+            this.importHTTPSToolStripMenuItem.Size = new System.Drawing.Size(149, 22);
+            this.importHTTPSToolStripMenuItem.Text = "Import HTTPS";
+            this.importHTTPSToolStripMenuItem.Click += new System.EventHandler(this.importHTTPSToolStripMenuItem_Click);
+            // 
+            // importRDPToolStripMenuItem
+            // 
+            this.importRDPToolStripMenuItem.Name = "importRDPToolStripMenuItem";
+            this.importRDPToolStripMenuItem.Size = new System.Drawing.Size(149, 22);
+            this.importRDPToolStripMenuItem.Text = "Import RDP";
+            this.importRDPToolStripMenuItem.Click += new System.EventHandler(this.importRDPToolStripMenuItem_Click);
+            // 
+            // importRloginToolStripMenuItem
+            // 
+            this.importRloginToolStripMenuItem.Name = "importRloginToolStripMenuItem";
+            this.importRloginToolStripMenuItem.Size = new System.Drawing.Size(149, 22);
+            this.importRloginToolStripMenuItem.Text = "Import Rlogin";
+            this.importRloginToolStripMenuItem.Click += new System.EventHandler(this.importRloginToolStripMenuItem_Click);
+            // 
+            // importSSH2ToolStripMenuItem
+            // 
+            this.importSSH2ToolStripMenuItem.Name = "importSSH2ToolStripMenuItem";
+            this.importSSH2ToolStripMenuItem.Size = new System.Drawing.Size(149, 22);
+            this.importSSH2ToolStripMenuItem.Text = "Import SSH2";
+            this.importSSH2ToolStripMenuItem.Click += new System.EventHandler(this.importSSH2ToolStripMenuItem_Click);
+            // 
+            // importTelnetToolStripMenuItem
+            // 
+            this.importTelnetToolStripMenuItem.Name = "importTelnetToolStripMenuItem";
+            this.importTelnetToolStripMenuItem.Size = new System.Drawing.Size(149, 22);
+            this.importTelnetToolStripMenuItem.Text = "Import Telnet";
+            this.importTelnetToolStripMenuItem.Click += new System.EventHandler(this.importTelnetToolStripMenuItem_Click);
+            // 
+            // importVNCToolStripMenuItem
+            // 
+            this.importVNCToolStripMenuItem.Name = "importVNCToolStripMenuItem";
+            this.importVNCToolStripMenuItem.Size = new System.Drawing.Size(149, 22);
+            this.importVNCToolStripMenuItem.Text = "Import VNC";
+            this.importVNCToolStripMenuItem.Click += new System.EventHandler(this.importVNCToolStripMenuItem_Click);
+            // 
             // btnImport
             // 
             this.btnImport.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnImport.Location = new System.Drawing.Point(585, 3);
+            this.btnImport.Location = new System.Drawing.Point(594, 3);
             this.btnImport.Name = "btnImport";
             this.btnImport.Size = new System.Drawing.Size(75, 31);
             this.btnImport.TabIndex = 101;
@@ -157,7 +231,7 @@ namespace mRemoteNG.UI.Window
             "VNC"});
             this.cbProtocol.Location = new System.Drawing.Point(157, 6);
             this.cbProtocol.Name = "cbProtocol";
-            this.cbProtocol.Size = new System.Drawing.Size(122, 27);
+            this.cbProtocol.Size = new System.Drawing.Size(122, 21);
             this.cbProtocol.TabIndex = 28;
             // 
             // lblOnlyImport
@@ -166,7 +240,7 @@ namespace mRemoteNG.UI.Window
             this.lblOnlyImport.AutoSize = true;
             this.lblOnlyImport.Location = new System.Drawing.Point(5, 13);
             this.lblOnlyImport.Name = "lblOnlyImport";
-            this.lblOnlyImport.Size = new System.Drawing.Size(125, 19);
+            this.lblOnlyImport.Size = new System.Drawing.Size(104, 13);
             this.lblOnlyImport.TabIndex = 1;
             this.lblOnlyImport.Text = "Protocol to import:";
             // 
@@ -224,7 +298,7 @@ namespace mRemoteNG.UI.Window
             // 
             this.prgBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.prgBar.Location = new System.Drawing.Point(12, 51);
+            this.prgBar.Location = new System.Drawing.Point(12, 50);
             this.prgBar.Name = "prgBar";
             this.prgBar.Size = new System.Drawing.Size(579, 16);
             this.prgBar.Step = 1;
@@ -250,7 +324,7 @@ namespace mRemoteNG.UI.Window
             0,
             0});
             this.portEnd.Name = "portEnd";
-            this.portEnd.Size = new System.Drawing.Size(67, 26);
+            this.portEnd.Size = new System.Drawing.Size(67, 22);
             this.portEnd.TabIndex = 15;
             this.portEnd.Enter += new System.EventHandler(this.portEnd_Enter);
             // 
@@ -263,7 +337,7 @@ namespace mRemoteNG.UI.Window
             0,
             0});
             this.portStart.Name = "portStart";
-            this.portStart.Size = new System.Drawing.Size(67, 26);
+            this.portStart.Size = new System.Drawing.Size(67, 22);
             this.portStart.TabIndex = 5;
             this.portStart.Enter += new System.EventHandler(this.portStart_Enter);
             // 
@@ -272,7 +346,7 @@ namespace mRemoteNG.UI.Window
             this.Label2.AutoSize = true;
             this.Label2.Location = new System.Drawing.Point(162, 7);
             this.Label2.Name = "Label2";
-            this.Label2.Size = new System.Drawing.Size(64, 19);
+            this.Label2.Size = new System.Drawing.Size(54, 13);
             this.Label2.TabIndex = 10;
             this.Label2.Text = "End Port:";
             // 
@@ -281,7 +355,7 @@ namespace mRemoteNG.UI.Window
             this.Label1.AutoSize = true;
             this.Label1.Location = new System.Drawing.Point(3, 7);
             this.Label1.Name = "Label1";
-            this.Label1.Size = new System.Drawing.Size(70, 19);
+            this.Label1.Size = new System.Drawing.Size(58, 13);
             this.Label1.TabIndex = 0;
             this.Label1.Text = "Start Port:";
             // 
@@ -292,15 +366,15 @@ namespace mRemoteNG.UI.Window
             this.pnlImport.Controls.Add(this.btnImport);
             this.pnlImport.Controls.Add(this.lblOnlyImport);
             this.pnlImport.Controls.Add(this.cbProtocol);
-            this.pnlImport.Location = new System.Drawing.Point(12, 344);
+            this.pnlImport.Location = new System.Drawing.Point(12, 369);
             this.pnlImport.Name = "pnlImport";
-            this.pnlImport.Size = new System.Drawing.Size(671, 40);
+            this.pnlImport.Size = new System.Drawing.Size(680, 40);
             this.pnlImport.TabIndex = 102;
             // 
             // PortScanWindow
             // 
             this.AcceptButton = this.btnImport;
-            this.ClientSize = new System.Drawing.Size(695, 396);
+            this.ClientSize = new System.Drawing.Size(704, 421);
             this.Controls.Add(this.pnlImport);
             this.Controls.Add(this.lvHosts);
             this.Controls.Add(this.pnlPorts);
@@ -316,6 +390,7 @@ namespace mRemoteNG.UI.Window
             this.TabText = "Port Scan";
             this.Text = "Port Scan";
             this.Load += new System.EventHandler(this.PortScan_Load);
+            this.resultsMenuStrip.ResumeLayout(false);
             this.pnlPorts.ResumeLayout(false);
             this.pnlPorts.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.portEnd)).EndInit();
@@ -328,5 +403,15 @@ namespace mRemoteNG.UI.Window
 		}
 		internal System.Windows.Forms.Panel pnlImport;
         #endregion
-	}
+
+        private System.Windows.Forms.ContextMenuStrip resultsMenuStrip;
+        private System.ComponentModel.IContainer components;
+        private System.Windows.Forms.ToolStripMenuItem importHTTPToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem importHTTPSToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem importRDPToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem importRloginToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem importSSH2ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem importTelnetToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem importVNCToolStripMenuItem;
+    }
 }

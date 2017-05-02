@@ -4,11 +4,9 @@ using System.Windows.Forms;
 using mRemoteNG.App;
 using mRemoteNG.App.Info;
 using mRemoteNG.App.Update;
-using mRemoteNG.My;
-using mRemoteNG.Security;
+using mRemoteNG.Security.SymmetricEncryption;
 using mRemoteNG.Tools;
 using mRemoteNG.UI.TaskDialog;
-using mRemoteNG.UI.Window;
 
 namespace mRemoteNG.UI.Forms.OptionsPages
 {
@@ -37,11 +35,7 @@ namespace mRemoteNG.UI.Forms.OptionsPages
         {
             base.ApplyLanguage();
 
-#if !PORTABLE
 			lblUpdatesExplanation.Text = Language.strUpdateCheck;
-            #else
-            lblUpdatesExplanation.Text = Language.strUpdateCheckPortableEdition;
-#endif
 
             chkCheckForUpdatesOnStartup.Text = Language.strCheckForUpdatesOnStartup;
             btnUpdateCheckNow.Text = Language.strCheckNow;
@@ -61,7 +55,7 @@ namespace mRemoteNG.UI.Forms.OptionsPages
         {
             base.SaveSettings();
 
-            chkCheckForUpdatesOnStartup.Checked = Convert.ToBoolean(Settings.Default.CheckForUpdatesOnStartup);
+            chkCheckForUpdatesOnStartup.Checked = Settings.Default.CheckForUpdatesOnStartup;
             cboUpdateCheckFrequency.Enabled = chkCheckForUpdatesOnStartup.Checked;
             cboUpdateCheckFrequency.Items.Clear();
             var nDaily = cboUpdateCheckFrequency.Items.Add(Language.strUpdateFrequencyDaily);
@@ -72,48 +66,56 @@ namespace mRemoteNG.UI.Forms.OptionsPages
                 chkCheckForUpdatesOnStartup.Checked = false;
                 cboUpdateCheckFrequency.SelectedIndex = nDaily;
             } // Daily
-            else if (Settings.Default.CheckForUpdatesFrequencyDays == 1)
+            else switch (Settings.Default.CheckForUpdatesFrequencyDays)
             {
-                cboUpdateCheckFrequency.SelectedIndex = nDaily;
-            } // Weekly
-            else if (Settings.Default.CheckForUpdatesFrequencyDays == 7)
-            {
-                cboUpdateCheckFrequency.SelectedIndex = nWeekly;
-            } // Monthly
-            else if (Settings.Default.CheckForUpdatesFrequencyDays == 31)
-            {
-                cboUpdateCheckFrequency.SelectedIndex = nMonthly;
-            }
-            else
-            {
-                var nCustom =
-                    cboUpdateCheckFrequency.Items.Add(string.Format(Language.strUpdateFrequencyCustom,
-                        Settings.Default.CheckForUpdatesFrequencyDays));
-                cboUpdateCheckFrequency.SelectedIndex = nCustom;
+                case 1:
+                    cboUpdateCheckFrequency.SelectedIndex = nDaily;
+                    break;
+                case 7:
+                    cboUpdateCheckFrequency.SelectedIndex = nWeekly;
+                    break;
+                case 31:
+                    cboUpdateCheckFrequency.SelectedIndex = nMonthly;
+                    break;
+                default:
+                    var nCustom =
+                        cboUpdateCheckFrequency.Items.Add(string.Format(Language.strUpdateFrequencyCustom,
+                            Settings.Default.CheckForUpdatesFrequencyDays));
+                    cboUpdateCheckFrequency.SelectedIndex = nCustom;
+                    break;
             }
 
-            chkUseProxyForAutomaticUpdates.Checked = Convert.ToBoolean(Settings.Default.UpdateUseProxy);
-            pnlProxyBasic.Enabled = Convert.ToBoolean(Settings.Default.UpdateUseProxy);
-            txtProxyAddress.Text = Convert.ToString(Settings.Default.UpdateProxyAddress);
+            var stable = cboReleaseChannel.Items.Add(UpdateChannelInfo.STABLE);
+            var beta = cboReleaseChannel.Items.Add(UpdateChannelInfo.BETA);
+            var dev = cboReleaseChannel.Items.Add(UpdateChannelInfo.DEV);
+            switch (Settings.Default.UpdateChannel)
+            {
+                case UpdateChannelInfo.STABLE:
+                    cboReleaseChannel.SelectedIndex = stable;
+                    break;
+                case UpdateChannelInfo.BETA:
+                    cboReleaseChannel.SelectedIndex = beta;
+                    break;
+                case UpdateChannelInfo.DEV:
+                    cboReleaseChannel.SelectedIndex = dev;
+                    break;
+                default:
+                    cboReleaseChannel.SelectedIndex = stable;
+                    break;
+            }
+
+            chkUseProxyForAutomaticUpdates.Checked = Settings.Default.UpdateUseProxy;
+            pnlProxyBasic.Enabled = Settings.Default.UpdateUseProxy;
+            txtProxyAddress.Text = Settings.Default.UpdateProxyAddress;
             numProxyPort.Value = Convert.ToDecimal(Settings.Default.UpdateProxyPort);
 
-            chkUseProxyAuthentication.Checked = Convert.ToBoolean(Settings.Default.UpdateProxyUseAuthentication);
-            pnlProxyAuthentication.Enabled = Convert.ToBoolean(Settings.Default.UpdateProxyUseAuthentication);
-            txtProxyUsername.Text = Convert.ToString(Settings.Default.UpdateProxyAuthUser);
-            txtProxyPassword.Text = Crypt.Decrypt(Convert.ToString(Settings.Default.UpdateProxyAuthPass),
-                GeneralAppInfo.EncryptionKey);
+            chkUseProxyAuthentication.Checked = Settings.Default.UpdateProxyUseAuthentication;
+            pnlProxyAuthentication.Enabled = Settings.Default.UpdateProxyUseAuthentication;
+            txtProxyUsername.Text = Settings.Default.UpdateProxyAuthUser;
+            var cryptographyProvider = new LegacyRijndaelCryptographyProvider();
+            txtProxyPassword.Text = cryptographyProvider.Decrypt(Settings.Default.UpdateProxyAuthPass, Runtime.EncryptionKey);
 
-            btnTestProxy.Enabled = Convert.ToBoolean(Settings.Default.UpdateUseProxy);
-
-#if PORTABLE
-            foreach (Control Control in Controls)
-            {
-                if (Control != lblUpdatesExplanation)
-                {
-                    Control.Visible = false;
-                }
-            }
-#endif
+            btnTestProxy.Enabled = Settings.Default.UpdateUseProxy;
         }
 
         public override void SaveSettings()
@@ -134,13 +136,18 @@ namespace mRemoteNG.UI.Forms.OptionsPages
                 Settings.Default.CheckForUpdatesFrequencyDays = 31;
             }
 
+            Settings.Default.UpdateChannel = cboReleaseChannel.Text;
+
             Settings.Default.UpdateUseProxy = chkUseProxyForAutomaticUpdates.Checked;
             Settings.Default.UpdateProxyAddress = txtProxyAddress.Text;
             Settings.Default.UpdateProxyPort = (int) numProxyPort.Value;
 
             Settings.Default.UpdateProxyUseAuthentication = chkUseProxyAuthentication.Checked;
             Settings.Default.UpdateProxyAuthUser = txtProxyUsername.Text;
-            Settings.Default.UpdateProxyAuthPass = Crypt.Encrypt(txtProxyPassword.Text, GeneralAppInfo.EncryptionKey);
+            var cryptographyProvider = new LegacyRijndaelCryptographyProvider();
+            Settings.Default.UpdateProxyAuthPass = cryptographyProvider.Encrypt(txtProxyPassword.Text, Runtime.EncryptionKey);
+
+            Settings.Default.Save();
         }
 
         #endregion
@@ -149,17 +156,17 @@ namespace mRemoteNG.UI.Forms.OptionsPages
 
         #region Event Handlers
 
-        public void chkCheckForUpdatesOnStartup_CheckedChanged(object sender, EventArgs e)
+        private void chkCheckForUpdatesOnStartup_CheckedChanged(object sender, EventArgs e)
         {
             cboUpdateCheckFrequency.Enabled = chkCheckForUpdatesOnStartup.Checked;
         }
 
-        public void btnUpdateCheckNow_Click(object sender, EventArgs e)
+        private void btnUpdateCheckNow_Click(object sender, EventArgs e)
         {
             Windows.Show(WindowType.Update);
         }
 
-        public void chkUseProxyForAutomaticUpdates_CheckedChanged(object sender, EventArgs e)
+        private void chkUseProxyForAutomaticUpdates_CheckedChanged(object sender, EventArgs e)
         {
             pnlProxyBasic.Enabled = chkUseProxyForAutomaticUpdates.Checked;
             btnTestProxy.Enabled = chkUseProxyForAutomaticUpdates.Checked;
@@ -180,7 +187,7 @@ namespace mRemoteNG.UI.Forms.OptionsPages
             }
         }
 
-        public void btnTestProxy_Click(object sender, EventArgs e)
+        private void btnTestProxy_Click(object sender, EventArgs e)
         {
             if (_appUpdate != null)
             {
@@ -204,18 +211,11 @@ namespace mRemoteNG.UI.Forms.OptionsPages
             _appUpdate.GetUpdateInfoAsync();
         }
 
-        public void chkUseProxyAuthentication_CheckedChanged(object sender, EventArgs e)
+        private void chkUseProxyAuthentication_CheckedChanged(object sender, EventArgs e)
         {
             if (chkUseProxyForAutomaticUpdates.Checked)
             {
-                if (chkUseProxyAuthentication.Checked)
-                {
-                    pnlProxyAuthentication.Enabled = true;
-                }
-                else
-                {
-                    pnlProxyAuthentication.Enabled = false;
-                }
+                pnlProxyAuthentication.Enabled = chkUseProxyAuthentication.Checked;
             }
         }
 
@@ -246,12 +246,11 @@ namespace mRemoteNG.UI.Forms.OptionsPages
                     throw e.Error;
                 }
 
-                CTaskDialog.ShowCommandBox(this, Convert.ToString(Application.ProductName),
-                    Language.strProxyTestSucceeded, "", Language.strButtonOK, false);
+                CTaskDialog.ShowCommandBox(this, Application.ProductName, Language.strProxyTestSucceeded, "", Language.strButtonOK, false);
             }
             catch (Exception ex)
             {
-                CTaskDialog.ShowCommandBox(this, Convert.ToString(Application.ProductName), Language.strProxyTestFailed,
+                CTaskDialog.ShowCommandBox(this, Application.ProductName, Language.strProxyTestFailed,
                     MiscTools.GetExceptionMessageRecursive(ex), "", "", "", Language.strButtonOK, false, ESysIcons.Error,
                     0);
             }

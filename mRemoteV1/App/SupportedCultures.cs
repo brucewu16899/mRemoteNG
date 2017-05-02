@@ -2,38 +2,33 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
-
+// ReSharper disable ArrangeAccessorOwnerBody
 
 namespace mRemoteNG.App
 {
-	public class SupportedCultures : Dictionary<string, string>
+    [Serializable]
+    public class SupportedCultures : Dictionary<string, string>
 	{
-        private static SupportedCultures _Instance = null;
+        private static SupportedCultures _Instance;
 
         private static SupportedCultures SingletonInstance
         {
-            get
-            {
-                if (_Instance == null)
-                    _Instance = new SupportedCultures();
-                return _Instance;
-            }
+            get { return _Instance ?? (_Instance = new SupportedCultures()); }
         }
-		
 
-        private SupportedCultures()
+
+	    private SupportedCultures()
         {
-            CultureInfo CultureInfo = default(CultureInfo);
-            foreach (string CultureName in Settings.Default.SupportedUICultures.Split(','))
+            foreach (var CultureName in Settings.Default.SupportedUICultures.Split(','))
             {
                 try
                 {
-                    CultureInfo = new CultureInfo(CultureName.Trim());
+                    var CultureInfo = new CultureInfo(CultureName.Trim());
                     Add(CultureInfo.Name, CultureInfo.TextInfo.ToTitleCase(CultureInfo.NativeName));
                 }
                 catch (Exception ex)
                 {
-                    Debug.Print(string.Format("An exception occurred while adding the culture \'{0}\' to the list of supported cultures. {1}", CultureName, ex.ToString()));
+                    Debug.Print($"An exception occurred while adding the culture {CultureName} to the list of supported cultures. {ex.StackTrace}");
                 }
             }
         }
@@ -50,13 +45,13 @@ namespace mRemoteNG.App
 			
 		public static string get_CultureName(string CultureNativeName)
 		{
-			string[] Names = new string[SingletonInstance.Count + 1];
-			string[] NativeNames = new string[SingletonInstance.Count + 1];
+			var Names = new string[SingletonInstance.Count + 1];
+			var NativeNames = new string[SingletonInstance.Count + 1];
 
             SingletonInstance.Keys.CopyTo(Names, 0);
             SingletonInstance.Values.CopyTo(NativeNames, 0);
 				
-			for (int Index = 0; Index <= SingletonInstance.Count; Index++)
+			for (var Index = 0; Index <= SingletonInstance.Count; Index++)
 			{
 				if (NativeNames[Index] == CultureNativeName)
 				{
@@ -76,8 +71,8 @@ namespace mRemoteNG.App
 		{
 			get
 			{
-				List<string> ValueList = new List<string>();
-				foreach (string Value in SingletonInstance.Values)
+				var ValueList = new List<string>();
+				foreach (var Value in SingletonInstance.Values)
 				{
 					ValueList.Add(Value);
 				}

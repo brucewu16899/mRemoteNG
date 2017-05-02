@@ -1,8 +1,7 @@
 using System.Drawing;
 using System.Windows.Forms;
 
-
-namespace mRemoteNG.Controls
+namespace mRemoteNG.UI.Controls
 {
 	public class ToolStripSplitButton : System.Windows.Forms.ToolStripSplitButton
 	{
@@ -21,9 +20,9 @@ namespace mRemoteNG.Controls
 			
 		private void DropDown_Closing(object sender, ToolStripDropDownClosingEventArgs e)
 		{
-			if (!(e.CloseReason == ToolStripDropDownCloseReason.AppClicked))
+			if (e.CloseReason != ToolStripDropDownCloseReason.AppClicked)
 			{
-				return ;
+				return;
 			}
 				
 			Rectangle dropDownButtonBoundsClient = DropDownButtonBounds; // Relative to the ToolStripSplitButton
@@ -54,6 +53,6 @@ namespace mRemoteNG.Controls
 			}
 		}
 			
-		private bool _dropDownVisibleOnMouseDown = false;
+		private bool _dropDownVisibleOnMouseDown;
 	}
 }

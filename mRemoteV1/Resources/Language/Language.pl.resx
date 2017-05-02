@@ -321,10 +321,10 @@ Proszę upewnić się, że albo masz Putty.exe w katalogu mRemoteNG (domyślnie:
     <value>Wszystkie składniki RDP zostały znalezione i wydają się być poprawnie zarejestrowane. Wersja Podłączanie Pulpitu Zdalnego {0}</value>
   </data>
   <data name="strCcVNCFailed" xml:space="preserve">
-    <value>VNC wymaga, aby biblioteka VncSharpNG.dll znajdowała się w folderze instalacji mRemoteNG. Upewnij się, że masz plik VncSharpNG.dll w folderze aplikacji mRemoteNG (domyślnie C:\Program Files\mRemoteNG\). Jeśli nadal nie można użyć VNC w mRemoteNG prosimy o kontakt mRemoteNG Forum na http://forum.mremoteng.org/</value>
+    <value>VNC wymaga, aby biblioteka VncSharp.dll znajdowała się w folderze instalacji mRemoteNG. Upewnij się, że masz plik VncSharp.dll w folderze aplikacji mRemoteNG (domyślnie C:\Program Files\mRemoteNG\). Jeśli nadal nie można użyć VNC w mRemoteNG prosimy o kontakt mRemoteNG Forum na http://forum.mremoteng.org/</value>
   </data>
   <data name="strCcVNCOK" xml:space="preserve">
-    <value>Wszystkie składniki VNC zostały znalezione i wydają się być poprawnie zarejestrowane. Wersja VncSharpNG {0}</value>
+    <value>Wszystkie składniki VNC zostały znalezione i wydają się być poprawnie zarejestrowane. Wersja VncSharp {0}</value>
   </data>
   <data name="strCheckboxAutomaticReconnect" xml:space="preserve">
     <value>Automatycznie połącz ponownie jeśli nastąpi odłączenie od serwera (tylko RDP &amp;&amp; ICA)</value>
@@ -429,7 +429,8 @@ Proszę upewnić się, że albo masz Putty.exe w katalogu mRemoteNG (domyślnie:
     <value>Wykonanie pGrid_PopertyValueChanged nie powiodło się!</value>
   </data>
   <data name="strConfirmCloseConnectionMainInstruction" xml:space="preserve">
-    <value>Czy chcesz zamknąć połączenie, "{0}"?</value>
+    <value>Czy chcesz zamknąć połączenie:
+"{0}"?</value>
   </data>
   <data name="strConfirmCloseConnectionPanelMainInstruction" xml:space="preserve">
     <value>Czy na pewno chcesz zamknąć panel, "{0}"? Wszystkie połączenia, które zawiera również zostaną zamknięte.</value>
@@ -832,9 +833,6 @@ Załadowano nowy plik połączeń.</value>
   </data>
   <data name="strMenuAddConnectionPanel" xml:space="preserve">
     <value>Dodaj panel połączenia</value>
-  </data>
-  <data name="strMenuAnnouncements" xml:space="preserve">
-    <value>Powiadomienia</value>
   </data>
   <data name="strMenuCheckForUpdates" xml:space="preserve">
     <value>Sprawdź aktualizacje</value>

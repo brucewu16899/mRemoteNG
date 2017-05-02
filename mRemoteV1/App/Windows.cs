@@ -1,145 +1,107 @@
-﻿using mRemoteNG.Forms;
-using mRemoteNG.Messages;
-using mRemoteNG.UI.Forms;
-using mRemoteNG.UI.Forms.OptionsPages;
+﻿using mRemoteNG.UI.Forms;
 using mRemoteNG.UI.Window;
 using System;
-using WeifenLuo.WinFormsUI.Docking;
+using mRemoteNG.Messages;
+using mRemoteNG.UI;
 
 namespace mRemoteNG.App
 {
-    public class Windows
+    public static class Windows
     {
-        public static ConnectionTreeWindow treeForm;
-        public static DockContent treePanel = new DockContent();
-        public static ConfigWindow configForm;
-        public static DockContent configPanel = new DockContent();
-        public static ErrorAndInfoWindow errorsForm;
-        public static DockContent errorsPanel = new DockContent();
-        public static ScreenshotManagerWindow screenshotForm;
-        public static DockContent screenshotPanel = new DockContent();
-        public static ExportForm exportForm;
-        public static DockContent exportPanel = new DockContent();
-        public static AboutWindow aboutForm;
-        public static DockContent aboutPanel = new DockContent();
-        public static UpdateWindow updateForm;
-        public static DockContent updatePanel = new DockContent();
-        public static SSHTransferWindow sshtransferForm;
-        public static DockContent sshtransferPanel = new DockContent();
-        public static ActiveDirectoryImportWindow adimportForm;
-        public static DockContent adimportPanel = new DockContent();
-        public static HelpWindow helpForm;
-        public static DockContent helpPanel = new DockContent();
-        public static ExternalToolsWindow externalappsForm;
-        public static DockContent externalappsPanel = new DockContent();
-        public static PortScanWindow portscanForm;
-        public static DockContent portscanPanel = new DockContent();
-        public static UltraVNCWindow ultravncscForm;
-        public static DockContent ultravncscPanel = new DockContent();
-        public static ComponentsCheckWindow componentscheckForm;
-        public static DockContent componentscheckPanel = new DockContent();
-        public static AnnouncementWindow AnnouncementForm;
-        public static DockContent AnnouncementPanel = new DockContent();
+        private static AboutWindow _aboutForm;
+        private static ActiveDirectoryImportWindow _adimportForm;
+        private static HelpWindow _helpForm;
+        private static ExternalToolsWindow _externalappsForm;
+        private static PortScanWindow _portscanForm;
+        private static UltraVNCWindow _ultravncscForm;
+        private static ComponentsCheckWindow _componentscheckForm;
 
-        public static void Show(WindowType windowType, bool portScanImport = false)
+        internal static ConnectionTreeWindow TreeForm { get; set; } = new ConnectionTreeWindow();
+        internal static ConfigWindow ConfigForm { get; set; } = new ConfigWindow();
+        internal static ErrorAndInfoWindow ErrorsForm { get; set; } = new ErrorAndInfoWindow();
+        internal static ScreenshotManagerWindow ScreenshotForm { get; set; } = new ScreenshotManagerWindow();
+        private static UpdateWindow UpdateForm { get; set; } = new UpdateWindow();
+        internal static SSHTransferWindow SshtransferForm { get; private set; } = new SSHTransferWindow();
+
+
+
+        public static void Show(WindowType windowType)
         {
             try
             {
-                if (windowType.Equals(WindowType.About))
+                // ReSharper disable once SwitchStatementMissingSomeCases
+                switch (windowType)
                 {
-                    if (aboutForm == null || aboutForm.IsDisposed)
-                    {
-                        aboutForm = new AboutWindow(aboutPanel);
-                        aboutPanel = aboutForm;
-                    }
-                    aboutForm.Show(frmMain.Default.pnlDock);
-                }
-                else if (windowType.Equals(WindowType.ActiveDirectoryImport))
-                {
-                    if (adimportForm == null || adimportForm.IsDisposed)
-                    {
-                        adimportForm = new ActiveDirectoryImportWindow(adimportPanel);
-                        adimportPanel = adimportForm;
-                    }
-                    adimportPanel.Show(frmMain.Default.pnlDock);
-                }
-                else if (windowType.Equals(WindowType.Options))
-                {
-                    using (var optionsForm = new frmOptions())
-                    {
-                        optionsForm.ShowDialog(frmMain.Default.pnlDock);
-                    }
-                }
-                else if (windowType.Equals(WindowType.SSHTransfer))
-                {
-                    sshtransferForm = new SSHTransferWindow(sshtransferPanel);
-                    sshtransferPanel = sshtransferForm;
-                    sshtransferForm.Show(frmMain.Default.pnlDock);
-                }
-                else if (windowType.Equals(WindowType.Update))
-                {
-                    if (updateForm == null || updateForm.IsDisposed)
-                    {
-                        updateForm = new UpdateWindow(updatePanel);
-                        updatePanel = updateForm;
-                    }
-                    updateForm.Show(frmMain.Default.pnlDock);
-                }
-                else if (windowType.Equals(WindowType.Help))
-                {
-                    if (helpForm == null || helpForm.IsDisposed)
-                    {
-                        helpForm = new HelpWindow(helpPanel);
-                        helpPanel = helpForm;
-                    }
-                    helpForm.Show(frmMain.Default.pnlDock);
-                }
-                else if (windowType.Equals(WindowType.ExternalApps))
-                {
-                    if (externalappsForm == null || externalappsForm.IsDisposed)
-                    {
-                        externalappsForm = new ExternalToolsWindow(externalappsPanel);
-                        externalappsPanel = externalappsForm;
-                    }
-                    externalappsForm.Show(frmMain.Default.pnlDock);
-                }
-                else if (windowType.Equals(WindowType.PortScan))
-                {
-                    portscanForm = new PortScanWindow(portscanPanel, portScanImport);
-                    portscanPanel = portscanForm;
-                    portscanForm.Show(frmMain.Default.pnlDock);
-                }
-                else if (windowType.Equals(WindowType.UltraVNCSC))
-                {
-                    if (ultravncscForm == null || ultravncscForm.IsDisposed)
-                    {
-                        ultravncscForm = new UltraVNCWindow(ultravncscPanel);
-                        ultravncscPanel = ultravncscForm;
-                    }
-                    ultravncscForm.Show(frmMain.Default.pnlDock);
-                }
-                else if (windowType.Equals(WindowType.ComponentsCheck))
-                {
-                    if (componentscheckForm == null || componentscheckForm.IsDisposed)
-                    {
-                        componentscheckForm = new ComponentsCheckWindow(componentscheckPanel);
-                        componentscheckPanel = componentscheckForm;
-                    }
-                    componentscheckForm.Show(frmMain.Default.pnlDock);
-                }
-                else if (windowType.Equals(WindowType.Announcement))
-                {
-                    if (AnnouncementForm == null || AnnouncementForm.IsDisposed)
-                    {
-                        AnnouncementForm = new AnnouncementWindow(AnnouncementPanel);
-                        AnnouncementPanel = AnnouncementForm;
-                    }
-                    AnnouncementForm.Show(frmMain.Default.pnlDock);
+                    case WindowType.About:
+                        if (_aboutForm == null || _aboutForm.IsDisposed)
+                            _aboutForm = new AboutWindow();
+                        _aboutForm.Show(FrmMain.Default.pnlDock);
+                        break;
+                    case WindowType.ActiveDirectoryImport:
+                        if (_adimportForm == null || _adimportForm.IsDisposed)
+                            _adimportForm = new ActiveDirectoryImportWindow();
+                        _adimportForm.Show(FrmMain.Default.pnlDock);
+                        break;
+                    case WindowType.Options:
+                        using (var optionsForm = new frmOptions())
+                        {
+                            optionsForm.ShowDialog(FrmMain.Default.pnlDock);
+                        }
+                        break;
+                    case WindowType.SSHTransfer:
+                        if (SshtransferForm == null || SshtransferForm.IsDisposed)
+                            SshtransferForm = new SSHTransferWindow();
+                        SshtransferForm.Show(FrmMain.Default.pnlDock);
+                        break;
+                    case WindowType.Update:
+                        if (UpdateForm == null || UpdateForm.IsDisposed)
+                            UpdateForm = new UpdateWindow();
+                        UpdateForm.Show(FrmMain.Default.pnlDock);
+                        break;
+                    case WindowType.Help:
+                        if (_helpForm == null || _helpForm.IsDisposed)
+                            _helpForm = new HelpWindow();
+                        _helpForm.Show(FrmMain.Default.pnlDock);
+                        break;
+                    case WindowType.ExternalApps:
+                        if (_externalappsForm == null || _externalappsForm.IsDisposed)
+                            _externalappsForm = new ExternalToolsWindow();
+                        _externalappsForm.Show(FrmMain.Default.pnlDock);
+                        break;
+                    case WindowType.PortScan:
+                        _portscanForm = new PortScanWindow();
+                        _portscanForm.Show(FrmMain.Default.pnlDock);
+                        break;
+                    case WindowType.UltraVNCSC:
+                        if (_ultravncscForm == null || _ultravncscForm.IsDisposed)
+                            _ultravncscForm = new UltraVNCWindow();
+                        _ultravncscForm.Show(FrmMain.Default.pnlDock);
+                        break;
+                    case WindowType.ComponentsCheck:
+                        Runtime.MessageCollector.AddMessage(MessageClass.InformationMsg, "Showing ComponentsCheck window", true);
+                        if (_componentscheckForm == null || _componentscheckForm.IsDisposed)
+                            _componentscheckForm = new ComponentsCheckWindow();
+                        _componentscheckForm.Show(FrmMain.Default.pnlDock);
+                        break;
+                    /*
+                    case WindowType.Tree:
+                        break;
+                    case WindowType.Connection:
+                        break;
+                    case WindowType.Config:
+                        break;
+                    case WindowType.ErrorsAndInfos:
+                        break;
+                    case WindowType.ScreenshotManager:
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(windowType), windowType, null);
+                    */
                 }
             }
             catch (Exception ex)
             {
-                Runtime.MessageCollector.AddMessage(MessageClass.ErrorMsg, "App.Runtime.Windows.Show() failed." + Environment.NewLine + ex.Message, true);
+                Runtime.MessageCollector.AddExceptionStackTrace("App.Runtime.Windows.Show() failed.", ex);
             }
         }
     }

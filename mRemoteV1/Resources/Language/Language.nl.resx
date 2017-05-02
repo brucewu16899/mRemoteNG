@@ -331,13 +331,13 @@ Als u nog steeds niet in staat bent om de langs check te komen voor RDP raadplee
 Verbinding met extern bureaublad Versie {0}</value>
   </data>
   <data name="strCcVNCFailed" xml:space="preserve">
-    <value>VNC vereist dat VncSharpNG.dll in de mRemoteNG installatiemap is geplaatst.
-Zorg ervoor dat u  VncSharpNG.dll bestand in de  mRemoteNG installatiemap wordt geplaatst (standaard C:\Program Files\mRemoteNG\).
+    <value>VNC vereist dat VncSharp.dll in de mRemoteNG installatiemap is geplaatst.
+Zorg ervoor dat u  VncSharp.dll bestand in de  mRemoteNG installatiemap wordt geplaatst (standaard C:\Program Files\mRemoteNG\).
 Als u nog steeds niet in staat bent om de langs check te komen gebruik dan VNC in mRemoteNG of raadpleeg mRemoteNG Forum op http://forum.mremoteng.org/</value>
   </data>
   <data name="strCcVNCOK" xml:space="preserve">
     <value>Alle VNC componenten werden gevonden en lijken correct te zijn geregistreerd.
-VncSharpNG Versie {0}</value>
+VncSharp Versie {0}</value>
   </data>
   <data name="strCheckboxAutomaticReconnect" xml:space="preserve">
     <value>Automatisch proberen opnieuw te verbinden wanneer de verbinding is verbroken van de server (RDP &amp;&amp; ICA Alleen)</value>
@@ -448,7 +448,8 @@ VncSharpNG Versie {0}</value>
     <value>Configuratie UI laden mislukt!</value>
   </data>
   <data name="strConfirmCloseConnectionMainInstruction" xml:space="preserve">
-    <value>Wilt u de verbinding sluiten, "{0}"?</value>
+    <value>Wilt u de verbinding sluiten:
+"{0}"?</value>
   </data>
   <data name="strConfirmCloseConnectionPanelMainInstruction" xml:space="preserve">
     <value>Weet u zeker dat u  het paneel wilt sluiten, "{0}"? Alle connecties zullen dan ook worden gesloten.</value>
@@ -912,9 +913,6 @@ Zie het Microsoft Support artikel op http://support.microsoft.com/kb/811833 voor
   </data>
   <data name="strMenuAddConnectionPanel" xml:space="preserve">
     <value>Voeg Connectie Paneel toe</value>
-  </data>
-  <data name="strMenuAnnouncements" xml:space="preserve">
-    <value>Aankondigingen</value>
   </data>
   <data name="strMenuCheckForUpdates" xml:space="preserve">
     <value>Controleer voor beschikbare Updates</value>

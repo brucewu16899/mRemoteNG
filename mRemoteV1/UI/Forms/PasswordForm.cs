@@ -1,33 +1,23 @@
 using System;
 using System.Windows.Forms;
-using mRemoteNG.My;
+// ReSharper disable ArrangeAccessorOwnerBody
 
-
-namespace mRemoteNG.Forms
+namespace mRemoteNG.UI.Forms
 {
     public partial class PasswordForm
 	{
         private string _passwordName;
-        private bool _Verify = true;
 
-        #region Public Properties
-        public bool Verify
-		{
-			get { return _Verify; }
-			set { _Verify = value; }
-		}
-			
-        public string Password
-		{
-			get
-			{
-				if (Verify)
-					return txtVerify.Text;
-				else
-					return txtPassword.Text;
-			}
-		}
-        #endregion
+	    #region Public Properties
+
+	    private bool Verify { get; set; }
+
+	    public string Password
+	    {
+	        get { return Verify ? txtVerify.Text : txtPassword.Text; }
+	    }
+
+	    #endregion
 		
         #region Constructors
 		public PasswordForm(string passwordName = null, bool verify = true)
@@ -37,30 +27,29 @@ namespace mRemoteNG.Forms
 				
 			// Add any initialization after the InitializeComponent() call.
 			_passwordName = passwordName;
-			this.Verify = verify;
+			Verify = verify;
 		}
         #endregion
 		
         #region Event Handlers
-		public void frmPassword_Load(object sender, EventArgs e)
+
+	    private void frmPassword_Load(object sender, EventArgs e)
 		{
 			ApplyLanguage();
-				
-			if (!Verify)
-			{
-				Height = Height - (txtVerify.Top - txtPassword.Top);
-				lblVerify.Visible = false;
-				txtVerify.Visible = false;
-			}
+
+		    if (Verify) return;
+		    Height = Height - (txtVerify.Top - txtPassword.Top);
+		    lblVerify.Visible = false;
+		    txtVerify.Visible = false;
 		}
-			
-		public void btnCancel_Click(System.Object sender, EventArgs e)
+
+	    private void btnCancel_Click(object sender, EventArgs e)
 		{
 			DialogResult = DialogResult.Cancel;
             Close();
 		}
-			
-		public void btnOK_Click(System.Object sender, EventArgs e)
+
+	    private void btnOK_Click(object sender, EventArgs e)
 		{
 			if (Verify)
 			{
@@ -72,8 +61,8 @@ namespace mRemoteNG.Forms
 				DialogResult = DialogResult.OK;
 			}
 		}
-			
-		public void txtPassword_TextChanged(System.Object sender, EventArgs e)
+
+	    private void txtPassword_TextChanged(object sender, EventArgs e)
 		{
 			HideStatus();
 		}
@@ -82,14 +71,7 @@ namespace mRemoteNG.Forms
         #region Private Methods
 		private void ApplyLanguage()
 		{
-			if (string.IsNullOrEmpty(_passwordName))
-			{
-				Text = Language.strTitlePassword;
-			}
-			else
-			{
-				Text = string.Format(Language.strTitlePasswordWithName, _passwordName);
-			}
+			Text = string.IsNullOrEmpty(_passwordName) ? Language.strTitlePassword : string.Format(Language.strTitlePasswordWithName, _passwordName);
 				
 			lblPassword.Text = Language.strLabelPassword;
 			lblVerify.Text = Language.strLabelVerify;

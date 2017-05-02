@@ -3,6 +3,9 @@ using System;
 using System.Windows.Forms;
 using WeifenLuo.WinFormsUI.Docking;
 using mRemoteNG.App;
+using mRemoteNG.Connection.Protocol;
+using mRemoteNG.Container;
+using mRemoteNG.Messages;
 using mRemoteNG.Tools;
 using static mRemoteNG.Tools.MiscTools;
 
@@ -12,13 +15,12 @@ namespace mRemoteNG.UI.Window
 	public partial class PortScanWindow
 	{
         #region Constructors
-		public PortScanWindow(DockContent panel, bool import)
+		public PortScanWindow()
 		{
 			InitializeComponent();
 					
 			WindowType = WindowType.PortScan;
-			DockPnl = panel;
-			_import = import;
+			DockPnl = new DockContent();
 		}
         #endregion
 				
@@ -67,41 +69,28 @@ namespace mRemoteNG.UI.Window
         #endregion
 				
         #region Private Fields
-		private bool _import;
-		private Scanner _portScanner;
-		private bool _scanning = false;
+		private PortScanner _portScanner;
+		private bool _scanning;
         #endregion
 				
         #region Private Methods
         #region Event Handlers
 
 	    private void PortScan_Load(object sender, EventArgs e)
-		{
-			ApplyLanguage();
-					
-			try
-			{
-                /* flipped the UI around a bit
-                 * Show the open/closed port numbers in import mode in case custom ports are scanned.
-                 * Since (currently) the non-import mode doesn't allow custom ports, just show the standard port columns.
-                 */
-				if (_import)
-				{
-                    lvHosts.Columns.AddRange(new[] { clmHost, clmOpenPorts, clmClosedPorts });
-					ShowImportControls(true);
-					cbProtocol.SelectedIndex = 0;
-				}
-				else
-				{
-                    lvHosts.Columns.AddRange(new[] { clmHost, clmSSH, clmTelnet, clmHTTP, clmHTTPS, clmRlogin, clmRDP, clmVNC });
-                    ShowImportControls(false);
-				}
-			}
-			catch (Exception ex)
-			{
-				Runtime.MessageCollector.AddExceptionMessage(Language.strPortScanCouldNotLoadPanel, ex);
-			}
-		}
+	    {
+	        ApplyLanguage();
+
+	        try
+	        {
+	            lvHosts.Columns.AddRange(new[]{clmHost, clmSSH, clmTelnet, clmHTTP, clmHTTPS, clmRlogin, clmRDP, clmVNC, clmOpenPorts, clmClosedPorts});
+	            ShowImportControls(true);
+	            cbProtocol.SelectedIndex = 0;
+	        }
+	        catch (Exception ex)
+	        {
+	            Runtime.MessageCollector.AddExceptionMessage(Language.strPortScanCouldNotLoadPanel, ex);
+	        }
+	    }
 
 	    private void portStart_Enter(object sender, EventArgs e)
 		{
@@ -127,26 +116,16 @@ namespace mRemoteNG.UI.Window
 				}
 				else
 				{
-					Runtime.MessageCollector.AddMessage(Messages.MessageClass.WarningMsg, Language.strCannotStartPortScan);
+					Runtime.MessageCollector.AddMessage(MessageClass.WarningMsg, Language.strCannotStartPortScan);
 				}
 			}
 		}
 
 	    private void btnImport_Click(object sender, EventArgs e)
 		{
-            Connection.Protocol.ProtocolType protocol = (Connection.Protocol.ProtocolType)StringToEnum(typeof(Connection.Protocol.ProtocolType), Convert.ToString(cbProtocol.SelectedItem));
-					
-			List<ScanHost> hosts = new List<ScanHost>();
-			foreach (ListViewItem item in lvHosts.SelectedItems)
-			{
-                var scanHost = (ScanHost)item.Tag;
-				if (scanHost != null)
-				{
-					hosts.Add(scanHost);
-				}
-			}
-			Import.ImportFromPortScan(hosts, protocol);
-			DialogResult = DialogResult.OK;
+            ProtocolType protocol = (ProtocolType)StringToEnum(typeof(ProtocolType), Convert.ToString(cbProtocol.SelectedItem));
+		    importSelectedHosts(protocol);
+            DialogResult = DialogResult.OK;
 			Close();
 		}
         #endregion
@@ -192,15 +171,7 @@ namespace mRemoteNG.UI.Window
 				System.Net.IPAddress ipAddressStart = System.Net.IPAddress.Parse(ipStart.Text);
 				System.Net.IPAddress ipAddressEnd = System.Net.IPAddress.Parse(ipEnd.Text);
 				
-                // reversed logic here. port values are only available on the import screen	
-				if (!_import)
-				{
-					_portScanner = new Scanner(ipAddressStart, ipAddressEnd);
-				}
-				else
-				{
-					_portScanner = new Scanner(ipAddressStart, ipAddressEnd, (int) portStart.Value, (int) portEnd.Value);
-				}
+				_portScanner = new PortScanner(ipAddressStart, ipAddressEnd, (int) portStart.Value, (int) portEnd.Value);
 						
 				_portScanner.BeginHostScan += PortScanner_BeginHostScan;
 				_portScanner.HostScanned += PortScanner_HostScanned;
@@ -210,7 +181,7 @@ namespace mRemoteNG.UI.Window
 			}
 			catch (Exception ex)
 			{
-				Runtime.MessageCollector.AddMessage(Messages.MessageClass.ErrorMsg, "StartScan failed (UI.Window.PortScan)" + Environment.NewLine + ex.Message, true);
+				Runtime.MessageCollector.AddExceptionMessage("StartScan failed (UI.Window.PortScan)", ex);
 			}
 		}
 				
@@ -223,14 +194,7 @@ namespace mRemoteNG.UI.Window
 				
 		private void SwitchButtonText()
 		{
-			if (_scanning)
-			{
-				btnScan.Text = Language.strButtonStop;
-			}
-			else
-			{
-				btnScan.Text = Language.strButtonScan;
-			}
+			btnScan.Text = _scanning ? Language.strButtonStop : Language.strButtonScan;
 					
 			prgBar.Maximum = 100;
 			prgBar.Value = 0;
@@ -238,7 +202,7 @@ namespace mRemoteNG.UI.Window
 				
 		private static void PortScanner_BeginHostScan(string host)
 		{
-			Runtime.MessageCollector.AddMessage(Messages.MessageClass.InformationMsg, "Scanning " + host, true);
+			Runtime.MessageCollector.AddMessage(MessageClass.InformationMsg, "Scanning " + host, true);
 		}
 				
 		private delegate void PortScannerHostScannedDelegate(ScanHost host, int scannedCount, int totalCount);
@@ -247,12 +211,12 @@ namespace mRemoteNG.UI.Window
 			if (InvokeRequired)
 			{
 				Invoke(new PortScannerHostScannedDelegate(PortScanner_HostScanned), new object[] {host, scannedCount, totalCount});
-				return ;
+				return;
 			}
 					
-			Runtime.MessageCollector.AddMessage(Messages.MessageClass.InformationMsg, "Host scanned " + host.HostIp, true);
+			Runtime.MessageCollector.AddMessage(MessageClass.InformationMsg, "Host scanned " + host.HostIp, true);
 					
-			ListViewItem listViewItem = host.ToListViewItem(_import);
+			ListViewItem listViewItem = host.ToListViewItem();
 			if (listViewItem != null)
 			{
 				lvHosts.Items.Add(listViewItem);
@@ -269,14 +233,71 @@ namespace mRemoteNG.UI.Window
 			if (InvokeRequired)
 			{
 				Invoke(new PortScannerScanComplete(PortScanner_ScanComplete), new object[] {hosts});
-				return ;
+				return;
 			}
 					
-			Runtime.MessageCollector.AddMessage(Messages.MessageClass.InformationMsg, Language.strPortScanComplete);
+			Runtime.MessageCollector.AddMessage(MessageClass.InformationMsg, Language.strPortScanComplete);
 					
 			_scanning = false;
 			SwitchButtonText();
 		}
         #endregion
+
+        private void importSelectedHosts(ProtocolType protocol)
+        {
+            var hosts = new List<ScanHost>();
+            foreach (ListViewItem item in lvHosts.SelectedItems)
+            {
+                var scanHost = (ScanHost)item.Tag;
+                if (scanHost != null)
+                {
+                    hosts.Add(scanHost);
+                }
+            }
+
+            if (hosts.Count < 1)
+            {
+                Runtime.MessageCollector.AddMessage(MessageClass.WarningMsg, "Could not import host(s) from port scan context menu");
+                return;
+            }
+
+            var selectedTreeNodeAsContainer = Windows.TreeForm.SelectedNode as ContainerInfo ?? Windows.TreeForm.SelectedNode.Parent;
+            Import.ImportFromPortScan(hosts, protocol, selectedTreeNodeAsContainer);
+        }
+
+        private void importVNCToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            importSelectedHosts(ProtocolType.VNC);
+        }
+
+        private void importTelnetToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            importSelectedHosts(ProtocolType.Telnet);
+        }
+
+        private void importSSH2ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            importSelectedHosts(ProtocolType.SSH2);
+        }
+
+        private void importRloginToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            importSelectedHosts(ProtocolType.Rlogin);
+        }
+
+        private void importRDPToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            importSelectedHosts(ProtocolType.RDP);
+        }
+
+        private void importHTTPSToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            importSelectedHosts(ProtocolType.HTTPS);
+        }
+
+        private void importHTTPToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            importSelectedHosts(ProtocolType.HTTP);
+        }
     }
 }

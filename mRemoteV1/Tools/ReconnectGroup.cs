@@ -1,8 +1,7 @@
+using System;
 using System.Drawing;
-using mRemoteNG.My;
 
-
-namespace mRemoteNG
+namespace mRemoteNG.Tools
 {
 	public partial class ReconnectGroup
 	{
@@ -19,16 +18,9 @@ namespace mRemoteNG
 			}
 			set
 			{
-				if (value == true)
-				{
-					SetStatusImage(Resources.HostStatus_On);
-				}
-				else
-				{
-					SetStatusImage(Resources.HostStatus_Off);
-				}
-				
-				_ServerReady = value;
+			    SetStatusImage(value ? Resources.HostStatus_On : Resources.HostStatus_Off);
+
+			    _ServerReady = value;
 			}
 		}
 		
@@ -37,16 +29,16 @@ namespace mRemoteNG
 		{
 			if (pbServerStatus.InvokeRequired)
 			{
-				SetStatusImageCB d = new SetStatusImageCB(SetStatusImage);
-				ParentForm.Invoke(d, new object[] {Img});
+			    var d = new SetStatusImageCB(SetStatusImage);
+			    ParentForm?.Invoke(d, new object[] {Img});
 			}
 			else
 			{
 				pbServerStatus.Image = Img;
 			}
 		}
-		
-		public void chkReconnectWhenReady_CheckedChanged(System.Object sender, System.EventArgs e)
+
+	    private void chkReconnectWhenReady_CheckedChanged(object sender, EventArgs e)
 		{
 			_ReconnectWhenReady = chkReconnectWhenReady.Checked;
 		}
@@ -70,8 +62,8 @@ namespace mRemoteNG
 		{
 			if (chkReconnectWhenReady.InvokeRequired)
 			{
-				SetCheckboxCB d = new SetCheckboxCB(SetCheckbox);
-				ParentForm.Invoke(d, new object[] {Val});
+			    var d = new SetCheckboxCB(SetCheckbox);
+			    ParentForm?.Invoke(d, new object[] {Val});
 			}
 			else
 			{
@@ -86,22 +78,21 @@ namespace mRemoteNG
 		{
 			add
 			{
-				CloseClickedEvent = (CloseClickedEventHandler) System.Delegate.Combine(CloseClickedEvent, value);
+				CloseClickedEvent = (CloseClickedEventHandler) Delegate.Combine(CloseClickedEvent, value);
 			}
 			remove
 			{
-				CloseClickedEvent = (CloseClickedEventHandler) System.Delegate.Remove(CloseClickedEvent, value);
+				CloseClickedEvent = (CloseClickedEventHandler) Delegate.Remove(CloseClickedEvent, value);
 			}
 		}
-		
-		
-		public void btnClose_Click(System.Object sender, System.EventArgs e)
+
+
+	    private void btnClose_Click(object sender, EventArgs e)
 		{
-			if (CloseClickedEvent != null)
-				CloseClickedEvent();
+		    CloseClickedEvent?.Invoke();
 		}
-		
-		public void tmrAnimation_Tick(System.Object sender, System.EventArgs e)
+
+	    private void tmrAnimation_Tick(object sender, EventArgs e)
 		{
 			switch (lblAnimation.Text)
 			{
@@ -123,18 +114,18 @@ namespace mRemoteNG
 		private delegate void DisposeReconnectGroupCB();
 		public void DisposeReconnectGroup()
 		{
-			if (this.InvokeRequired)
+			if (InvokeRequired)
 			{
-				DisposeReconnectGroupCB d = new DisposeReconnectGroupCB(DisposeReconnectGroup);
-				ParentForm.Invoke(d);
+			    var d = new DisposeReconnectGroupCB(DisposeReconnectGroup);
+			    ParentForm?.Invoke(d);
 			}
 			else
 			{
-				this.Dispose();
+				Dispose();
 			}
 		}
 		
-		public void ReconnectGroup_Load(object sender, System.EventArgs e)
+		public void ReconnectGroup_Load(object sender, EventArgs e)
 		{
 			ApplyLanguage();
 		}

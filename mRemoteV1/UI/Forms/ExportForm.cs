@@ -1,15 +1,16 @@
-using System.Collections.Generic;
 using System;
-using System.Windows.Forms;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Windows.Forms;
 using mRemoteNG.App;
-using mRemoteNG.My;
+using mRemoteNG.Config.Connections;
+using mRemoteNG.Connection;
+using mRemoteNG.Container;
 
-
-namespace mRemoteNG.Forms
+namespace mRemoteNG.UI.Forms
 {
-    public partial class ExportForm : Form
-	{
+    public partial class ExportForm
+    {
         #region Public Properties
         public string FileName
 		{
@@ -23,34 +24,21 @@ namespace mRemoteNG.Forms
 			}
 		}
 			
-        public Config.Connections.ConnectionsSaver.Format SaveFormat
+        public ConnectionsSaver.Format SaveFormat
 		{
 			get
 			{
-				ExportFormat exportFormat = cboFileFormat.SelectedItem as ExportFormat;
-				if (exportFormat == null)
-				{
-					return Config.Connections.ConnectionsSaver.Format.mRXML;
-				}
-				else
-				{
-					return exportFormat.Format;
-				}
+			    var exportFormat = cboFileFormat.SelectedItem as ExportFormat;
+			    return exportFormat?.Format ?? ConnectionsSaver.Format.mRXML;
 			}
-			set
+            set
 			{
-				foreach (object item in cboFileFormat.Items)
+				foreach (var item in cboFileFormat.Items)
 				{
-					ExportFormat exportFormat = item as ExportFormat;
-					if (exportFormat == null)
-					{
-						continue;
-					}
-					if (exportFormat.Format == value)
-					{
-						cboFileFormat.SelectedItem = item;
-						break;
-					}
+					var exportFormat = item as ExportFormat;
+				    if (exportFormat?.Format != value) continue;
+				    cboFileFormat.SelectedItem = item;
+				    break;
 				}
 			}
 		}
@@ -59,20 +47,13 @@ namespace mRemoteNG.Forms
 		{
 			get
 			{
-				if (rdoExportSelectedFolder.Checked)
-				{
+			    if (rdoExportSelectedFolder.Checked)
 					return ExportScope.SelectedFolder;
-				}
-				else if (rdoExportSelectedConnection.Checked)
-				{
-					return ExportScope.SelectedConnection;
-				}
-				else
-				{
-					return ExportScope.Everything;
-				}
+			    if (rdoExportSelectedConnection.Checked)
+			        return ExportScope.SelectedConnection;
+			    return ExportScope.Everything;
 			}
-			set
+            set
 			{
 				switch (value)
 				{
@@ -89,8 +70,8 @@ namespace mRemoteNG.Forms
 			}
 		}
 			
-		private TreeNode _selectedFolder;
-        public TreeNode SelectedFolder
+		private ContainerInfo _selectedFolder;
+        public ContainerInfo SelectedFolder
 		{
 			get
 			{
@@ -99,20 +80,13 @@ namespace mRemoteNG.Forms
 			set
 			{
 				_selectedFolder = value;
-				if (value == null)
-				{
-					lblSelectedFolder.Text = string.Empty;
-				}
-				else
-				{
-					lblSelectedFolder.Text = value.Text;
-				}
+				lblSelectedFolder.Text = value?.Name;
 				rdoExportSelectedFolder.Enabled = value != null;
 			}
 		}
 			
-		private TreeNode _selectedConnection;
-        public TreeNode SelectedConnection
+		private ConnectionInfo _selectedConnection;
+        public ConnectionInfo SelectedConnection
 		{
 			get
 			{
@@ -121,14 +95,7 @@ namespace mRemoteNG.Forms
 			set
 			{
 				_selectedConnection = value;
-				if (value == null)
-				{
-					lblSelectedConnection.Text = string.Empty;
-				}
-				else
-				{
-					lblSelectedConnection.Text = value.Text;
-				}
+				lblSelectedConnection.Text = value?.Name;
 				rdoExportSelectedConnection.Enabled = value != null;
 			}
 		}
@@ -168,7 +135,13 @@ namespace mRemoteNG.Forms
 				chkDomain.Checked = value;
 			}
 		}
-			
+
+        public bool IncludeAssignedCredential
+        {
+            get { return chkAssignedCredential.Checked; }
+            set { chkAssignedCredential.Checked = value; }
+        }
+
         public bool IncludeInheritance
 		{
 			get
@@ -186,69 +159,85 @@ namespace mRemoteNG.Forms
 		public ExportForm()
 		{
 			InitializeComponent();
-				
 			Runtime.FontOverride(this);
-				
 			SelectedFolder = null;
 			SelectedConnection = null;
-				
 			btnOK.Enabled = false;
 		}
         #endregion
 			
         #region Private Methods
         #region Event Handlers
-		public void ExportForm_Load(object sender, EventArgs e)
+        private void ExportForm_Load(object sender, EventArgs e)
 		{
 			cboFileFormat.Items.Clear();
-            cboFileFormat.Items.Add(new ExportFormat(Config.Connections.ConnectionsSaver.Format.mRXML));
-            cboFileFormat.Items.Add(new ExportFormat(Config.Connections.ConnectionsSaver.Format.mRCSV));
-            cboFileFormat.Items.Add(new ExportFormat(Config.Connections.ConnectionsSaver.Format.vRDCSV));
+            cboFileFormat.Items.Add(new ExportFormat(ConnectionsSaver.Format.mRXML));
+            cboFileFormat.Items.Add(new ExportFormat(ConnectionsSaver.Format.mRCSV));
 			cboFileFormat.SelectedIndex = 0;
 				
 			ApplyLanguage();
 		}
-			
-		public void txtFileName_TextChanged(System.Object sender, EventArgs e)
+
+        private void txtFileName_TextChanged(object sender, EventArgs e)
 		{
 			btnOK.Enabled = !string.IsNullOrEmpty(txtFileName.Text);
 		}
-			
-		public void btnBrowse_Click(System.Object sender, EventArgs e)
+
+        private void btnBrowse_Click(object sender, EventArgs e)
 		{
-			using (SaveFileDialog saveFileDialog = new SaveFileDialog())
+			using (var saveFileDialog = new SaveFileDialog())
 			{
 				saveFileDialog.CheckPathExists = true;
 				saveFileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
 				saveFileDialog.OverwritePrompt = true;
-					
-				List<string> fileTypes = new List<string>();
+				
+				var fileTypes = new List<string>();
 				fileTypes.AddRange(new[] {Language.strFiltermRemoteXML, "*.xml"});
 				fileTypes.AddRange(new[] {Language.strFiltermRemoteCSV, "*.csv"});
-				fileTypes.AddRange(new[] {Language.strFiltervRD2008CSV, "*.csv"});
 				fileTypes.AddRange(new[] {Language.strFilterAll, "*.*"});
-					
-				saveFileDialog.Filter = string.Join("|", fileTypes.ToArray());
-					
-				if (!(saveFileDialog.ShowDialog(this) == DialogResult.OK))
-				{
-					return ;
-				}
-					
-				txtFileName.Text = saveFileDialog.FileName;
-			}
 				
+				saveFileDialog.Filter = string.Join("|", fileTypes.ToArray());
+			    SelectFileTypeBasedOnSaveFormat(saveFileDialog);
+
+                if (saveFileDialog.ShowDialog(this) != DialogResult.OK)
+					return;
+				
+				txtFileName.Text = saveFileDialog.FileName;
+            }
 		}
-			
-		public void btnOK_Click(System.Object sender, EventArgs e)
+
+        private void SelectFileTypeBasedOnSaveFormat(FileDialog saveFileDialog)
+        {
+            saveFileDialog.FilterIndex = SaveFormat == ConnectionsSaver.Format.mRCSV ? 2 : 1;
+        }
+
+        private void btnOK_Click(object sender, EventArgs e)
 		{
 			DialogResult = DialogResult.OK;
 		}
-			
-		public void btnCancel_Click(System.Object sender, EventArgs e)
+
+        private void btnCancel_Click(object sender, EventArgs e)
 		{
 			DialogResult = DialogResult.Cancel;
 		}
+
+        private void cboFileformat_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (SaveFormat == ConnectionsSaver.Format.mRXML)
+            {
+                chkUsername.Enabled = false;
+                chkPassword.Enabled = false;
+                chkDomain.Enabled = false;
+                chkAssignedCredential.Enabled = true;
+            }
+            else
+            {
+                chkUsername.Enabled = true;
+                chkPassword.Enabled = true;
+                chkDomain.Enabled = true;
+                chkAssignedCredential.Enabled = false;
+            }
+        }
         #endregion
 			
 		private void ApplyLanguage()
@@ -269,6 +258,7 @@ namespace mRemoteNG.Forms
 			chkUsername.Text = Language.strCheckboxUsername;
 			chkPassword.Text = Language.strCheckboxPassword;
 			chkDomain.Text = Language.strCheckboxDomain;
+		    chkAssignedCredential.Text = Language.strAssignedCredential;
 			chkInheritance.Text = Language.strCheckboxInheritance;
 			lblUncheckProperties.Text = Language.strUncheckProperties;
 				
@@ -291,20 +281,15 @@ namespace mRemoteNG.Forms
         private class ExportFormat
 		{
             #region Public Properties
-			private Config.Connections.ConnectionsSaver.Format _format;
-            public Config.Connections.ConnectionsSaver.Format Format
-			{
-				get
-				{
-					return _format;
-				}
-			}
-            #endregion
+
+		    public ConnectionsSaver.Format Format { get; }
+
+		    #endregion
 				
             #region Constructors
-			public ExportFormat(Config.Connections.ConnectionsSaver.Format format)
+			public ExportFormat(ConnectionsSaver.Format format)
 			{
-				_format = format;
+				Format = format;
 			}
             #endregion
 				
@@ -313,12 +298,10 @@ namespace mRemoteNG.Forms
 			{
 				switch (Format)
 				{
-					case Config.Connections.ConnectionsSaver.Format.mRXML:
+					case ConnectionsSaver.Format.mRXML:
 						return Language.strMremoteNgXml;
-                    case Config.Connections.ConnectionsSaver.Format.mRCSV:
+                    case ConnectionsSaver.Format.mRCSV:
 						return Language.strMremoteNgCsv;
-                    case Config.Connections.ConnectionsSaver.Format.vRDCSV:
-						return Language.strVisionAppRemoteDesktopCsv;
 					default:
 						return Format.ToString();
 				}

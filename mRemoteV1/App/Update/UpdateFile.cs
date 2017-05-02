@@ -1,21 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace mRemoteNG.App.Update
 {
     public class UpdateFile
     {
         #region Public Properties
-        private Dictionary<string, string> _items = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
         // ReSharper disable MemberCanBePrivate.Local
-        public Dictionary<string, string> Items
-        {
-            // ReSharper restore MemberCanBePrivate.Local
-            get
-            {
-                return _items;
-            }
-        }
+        // ReSharper disable once MemberCanBePrivate.Global
+        public Dictionary<string, string> Items { get; } = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
         #endregion
 
         #region Public Methods
@@ -25,76 +19,67 @@ namespace mRemoteNG.App.Update
         }
 
         // ReSharper disable MemberCanBePrivate.Local
+        // ReSharper disable once MemberCanBePrivate.Global
         public void FromString(string content)
         {
-            // ReSharper restore MemberCanBePrivate.Local
-            if (string.IsNullOrEmpty(content))
-            {
-            }
-            else
-            {
-                char[] lineSeparators = new char[] { '\n', '\r' };
-                char[] keyValueSeparators = new char[] { ':', '=' };
-                char[] commentCharacters = new char[] { '#', ';', '\'' };
+            if (string.IsNullOrEmpty(content)) return;
 
-                string[] lines = content.Split(lineSeparators.ToString().ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-                foreach (string line in lines)
+            char[] keyValueSeparators = { ':', '=' };
+            char[] commentCharacters = { '#', ';', '\'' };
+
+            using (var sr = new StringReader(content))
+            {
+                string line;
+                while ((line = sr.ReadLine()) != null)
                 {
-                    string trimmedLine = line.Trim();
+                    var trimmedLine = line.Trim();
                     if (trimmedLine.Length == 0)
-                    {
                         continue;
-                    }
-                    if (!(trimmedLine.Substring(0, 1).IndexOfAny(commentCharacters.ToString().ToCharArray()) == -1))
-                    {
-                        continue;
-                    }
 
-                    string[] parts = trimmedLine.Split(keyValueSeparators.ToString().ToCharArray(), 2);
-                    if (!(parts.Length == 2))
-                    {
+                    if (trimmedLine.Substring(0, 1).IndexOfAny(commentCharacters) != -1)
                         continue;
-                    }
-                    string key = Convert.ToString(parts[0].Trim());
-                    string value = Convert.ToString(parts[1].Trim());
 
-                    _items.Add(key, value);
+                    var parts = trimmedLine.Split(keyValueSeparators, 2);
+                    if (parts.Length != 2)
+                        continue;
+
+                    Items.Add(parts[0].Trim(), parts[1].Trim());
                 }
             }
         }
 
         // ReSharper disable MemberCanBePrivate.Local
-        public string GetString(string key)
+        private string GetString(string key)
         {
             // ReSharper restore MemberCanBePrivate.Local
-            if (!Items.ContainsKey(key))
-            {
-                return string.Empty;
-            }
-            return this._items[key];
+            return !Items.ContainsKey(key) ? string.Empty : Items[key];
         }
 
-        public Version GetVersion(string key)
+        public Version GetVersion(string key = "Version")
         {
-            string value = GetString(key);
-            if (string.IsNullOrEmpty(value))
-            {
-                return null;
-            }
-            return new Version(value);
+            var value = GetString(key);
+            return string.IsNullOrEmpty(value) ? null : new Version(value);
         }
 
         public Uri GetUri(string key)
         {
-            string value = GetString(key);
-            if (string.IsNullOrEmpty(value))
-            {
-                return null;
-            }
-            return new Uri(value);
+            var value = GetString(key);
+            return string.IsNullOrEmpty(value) ? null : new Uri(value);
         }
 
-        public string GetThumbprint(string key)
+        public string GetThumbprint(string key = "CertificateThumbprint")
+        {
+            return GetString(key).Replace(" ", "").ToUpperInvariant();
+        }
+
+        public string GetFileName()
+        {
+            var value = GetString("dURL");
+            var sv = value.Split('/');
+            return sv[sv.Length-1];
+        }
+
+        public string GetChecksum(string key = "Checksum")
         {
             return GetString(key).Replace(" ", "").ToUpperInvariant();
         }

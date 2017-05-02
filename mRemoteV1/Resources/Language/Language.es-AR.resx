@@ -170,7 +170,7 @@
   </data>
   <data name="strCcVNCOK" xml:space="preserve">
     <value>Todos los componentes de VNC se encontraron y parecen estar registrados correctamente.
-VncSharpNG Control {0}</value>
+VncSharp Control {0}</value>
   </data>
   <data name="strCheckboxAutomaticReconnect" xml:space="preserve">
     <value>Intentar reconectar automáticamente cuando se desconecte (solo para RDP &amp;&amp; ICA)</value>
@@ -233,7 +233,8 @@ VncSharpNG Control {0}</value>
     <value>btnIcon_Click falló!</value>
   </data>
   <data name="strConfirmCloseConnectionMainInstruction" xml:space="preserve">
-    <value>¿Desea cerrar la conexión, "{0}"?</value>
+    <value>¿Desea cerrar la conexión:
+"{0}"?</value>
   </data>
   <data name="strConfirmCloseConnectionPanelMainInstruction" xml:space="preserve">
     <value>¿Está seguro que desea cerrar el panel, "{0}"? Cualquier conexión que contenga el panel también estará cerrada.</value>

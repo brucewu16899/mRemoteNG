@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -105,17 +105,17 @@
       </xsd:complexType>
     </xsd:element>
   </xsd:schema>
-  <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </resheader>
   <resheader name="resmimetype">
     <value>text/microsoft-resx</value>
   </resheader>
   <resheader name="version">
     <value>2.0</value>
   </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
   <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="strAbout" xml:space="preserve">
     <value>About</value>
@@ -336,13 +336,13 @@ If this check still fails or you are unable to use RDP, please consult the mRemo
 Remote Desktop Connection Control Version {0}</value>
   </data>
   <data name="strCcVNCFailed" xml:space="preserve">
-    <value>VNC requires VncSharpNG.dll to be located in your mRemoteNG application folder.
-Please make sure that you have the VncSharpNG.dll file in your mRemoteNG application folder (usually C:\Program Files\mRemoteNG\).
+    <value>VNC requires VncSharp.dll to be located in your mRemoteNG application folder.
+Please make sure that you have the VncSharp.dll file in your mRemoteNG application folder (usually C:\Program Files\mRemoteNG\).
 If you are still not able to pass this check or use VNC in mRemoteNG please consult the mRemoteNG Forum at http://forum.mremoteng.org/</value>
   </data>
   <data name="strCcVNCOK" xml:space="preserve">
     <value>All VNC components were found and seem to be registered properly.
-VncSharpNG Control Version {0}</value>
+VncSharp Control Version {0}</value>
   </data>
   <data name="strCheckboxAutomaticReconnect" xml:space="preserve">
     <value>Automatically try to reconnect when disconnected from server (RDP &amp;&amp; ICA only)</value>
@@ -381,7 +381,7 @@ VncSharpNG Control Version {0}</value>
     <value>Check Again</value>
   </data>
   <data name="strCheckForUpdatesOnStartup" xml:space="preserve">
-    <value>Check for updates and announcements at startup</value>
+    <value>Check for updates at startup</value>
   </data>
   <data name="strCheckNow" xml:space="preserve">
     <value>Check now</value>
@@ -462,7 +462,8 @@ VncSharpNG Control Version {0}</value>
     <value>Config UI load failed!</value>
   </data>
   <data name="strConfirmCloseConnectionMainInstruction" xml:space="preserve">
-    <value>Do you want to close the connection, "{0}"?</value>
+    <value>Do you want to close the connection:
+"{0}"?</value>
   </data>
   <data name="strConfirmCloseConnectionPanelMainInstruction" xml:space="preserve">
     <value>Are you sure you want to close the panel, "{0}"? Any connections that it contains will also be closed.</value>
@@ -630,7 +631,7 @@ Starting with new connections file.</value>
     <value>AddExternalToolsToToolBar (frmMain) failed. {0}</value>
   </data>
   <data name="strErrorAddFolderFailed" xml:space="preserve">
-    <value>AddFolder (UI.Window.Tree) failed. {0}</value>
+    <value>AddFolder (UI.Window.ConnectionTreeWindow) failed. {0}</value>
   </data>
   <data name="strErrorBadDatabaseVersion" xml:space="preserve">
     <value>The database version {0} is not compatible with this version of {1}.</value>
@@ -1022,9 +1023,6 @@ See the Microsoft Support article at http://support.microsoft.com/kb/811833 for 
   </data>
   <data name="strMenuAddConnectionPanel" xml:space="preserve">
     <value>Add Connection Panel</value>
-  </data>
-  <data name="strMenuAnnouncements" xml:space="preserve">
-    <value>Announcements</value>
   </data>
   <data name="strMenuCheckForUpdates" xml:space="preserve">
     <value>Check for Updates</value>
@@ -2261,7 +2259,7 @@ Message:
     <value>mRemoteNG requires an update</value>
   </data>
   <data name="strUpdateCheck" xml:space="preserve">
-    <value>mRemoteNG can periodically connect to the mRemoteNG website to check for updates and product announcements.</value>
+    <value>mRemoteNG can periodically connect to the mRemoteNG website to check for updates.</value>
   </data>
   <data name="strUpdateCheckCompleteFailed" xml:space="preserve">
     <value>The update information could not be downloaded.</value>
@@ -2297,17 +2295,11 @@ mRemoteNG will now quit and begin with the installation.</value>
   <data name="strUpdateFrequencyWeekly" xml:space="preserve">
     <value>Weekly</value>
   </data>
-  <data name="strUpdateGetAnnouncementInfoFailed" xml:space="preserve">
-    <value>The announcement information could not be downloaded.</value>
-  </data>
   <data name="strUpdateGetChangeLogFailed" xml:space="preserve">
     <value>The change log could not be downloaded.</value>
   </data>
   <data name="strUseDifferentUsernameAndPassword" xml:space="preserve">
     <value>Use a different username and password</value>
-  </data>
-  <data name="strUseOnlyErrorsAndInfosPanel" xml:space="preserve">
-    <value>Use only Notifications panel (no messagebox popups)</value>
   </data>
   <data name="strUser" xml:space="preserve">
     <value>User</value>
@@ -2323,9 +2315,6 @@ mRemoteNG will now quit and begin with the installation.</value>
   </data>
   <data name="strVersion" xml:space="preserve">
     <value>Version</value>
-  </data>
-  <data name="strVisionAppRemoteDesktopCsv" xml:space="preserve">
-    <value>visionapp Remote Desktop 2008 CSV</value>
   </data>
   <data name="strVnc" xml:space="preserve">
     <value>VNC</value>
@@ -2369,13 +2358,169 @@ mRemoteNG will now quit and begin with the installation.</value>
   <data name="strWeifenLuoAttributionURL" xml:space="preserve">
     <value>http://sourceforge.net/projects/dockpanelsuite/</value>
   </data>
-  <data name="strWriteLogFile" xml:space="preserve">
-    <value>Write log file (mRemoteNG.log)</value>
-  </data>
   <data name="strXULrunnerPath" xml:space="preserve">
     <value>XULrunner path:</value>
   </data>
   <data name="strYes" xml:space="preserve">
     <value>Yes</value>
+  </data>
+  <data name="strMenuReconnectAll" xml:space="preserve">
+    <value>Reconnect All Open Connections</value>
+  </data>
+  <data name="strRDPOverallConnectionTimeout" xml:space="preserve">
+    <value>RDP Connection Timeout</value>
+  </data>
+  <data name="strNodeAlreadyInFolder" xml:space="preserve">
+    <value>This node is already in this folder.</value>
+  </data>
+  <data name="strNodeCannotDragOnSelf" xml:space="preserve">
+    <value>Cannot drag node onto itself.</value>
+  </data>
+  <data name="strNodeCannotDragParentOnChild" xml:space="preserve">
+    <value>Cannot drag parent node onto child.</value>
+  </data>
+  <data name="strNodeNotDraggable" xml:space="preserve">
+    <value>This node is not draggable.</value>
+  </data>
+  <data name="strEncryptionBlockCipherMode" xml:space="preserve">
+    <value>Block Cipher Mode</value>
+  </data>
+  <data name="strEncryptionEngine" xml:space="preserve">
+    <value>Encryption Engine</value>
+  </data>
+  <data name="strTabSecurity" xml:space="preserve">
+    <value>Security</value>
+  </data>
+  <data name="strEncryptionKeyDerivationIterations" xml:space="preserve">
+    <value>Key Derivation Function Iterations</value>
+  </data>
+  <data name="strRDPSoundQualityDynamic" xml:space="preserve">
+    <value>Dynamic</value>
+  </data>
+  <data name="strRDPSoundQualityHigh" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="strRDPSoundQualityMedium" xml:space="preserve">
+    <value>Medium</value>
+  </data>
+  <data name="strPropertyDescriptionSoundQuality" xml:space="preserve">
+    <value>Choose the Sound Quality provided by the protocol: Dynamic, Medium, High</value>
+  </data>
+  <data name="strPropertyNameSoundQuality" xml:space="preserve">
+    <value>Sound Quality</value>
+  </data>
+  <data name="strUpdatePortableDownloadComplete" xml:space="preserve">
+    <value>Download Completed!</value>
+  </data>
+  <data name="strDownloadPortable" xml:space="preserve">
+    <value>Download</value>
+  </data>
+  <data name="strPropertyDescriptionRDPMinutesToIdleTimeout" xml:space="preserve">
+    <value>The number of minutes for the RDP session to sit idle before automatically disconnecting (for no limit use 0)</value>
+  </data>
+  <data name="strPropertyNameRDPMinutesToIdleTimeout" xml:space="preserve">
+    <value>Minutes to Idle</value>
+  </data>
+  <data name="strAccept" xml:space="preserve">
+    <value>Accept</value>
+  </data>
+  <data name="strAdd" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="strCredentialEditor" xml:space="preserve">
+    <value>Credential Editor</value>
+  </data>
+  <data name="strCredentialManager" xml:space="preserve">
+    <value>Credential Manager</value>
+  </data>
+  <data name="strID" xml:space="preserve">
+    <value>ID</value>
+  </data>
+  <data name="strRemove" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="strTitle" xml:space="preserve">
+    <value>Title</value>
+  </data>
+  <data name="strPropertyDescriptionCredential" xml:space="preserve">
+    <value>Select which credential to use for this connection.</value>
+  </data>
+  <data name="strConfirmDeleteCredentialRecord" xml:space="preserve">
+    <value>Are you sure you want to delete the credential record, {0}?</value>
+  </data>
+  <data name="strFindMatchingCredentialFailed" xml:space="preserve">
+    <value>Could not find a credential record with ID matching "{0}" for the connection record named "{1}".</value>
+  </data>
+  <data name="strPropertyDescriptionRDPAlertIdleTimeout" xml:space="preserve">
+    <value>Select whether to receive an alert after the RDP session disconnects due to inactivity</value>
+  </data>
+  <data name="strPropertyNameRDPAlertIdleTimeout" xml:space="preserve">
+    <value>Alert on Idle Disconnect</value>
+  </data>
+  <data name="strPasswordConstainsSpecialCharactersConstraintHint" xml:space="preserve">
+    <value>Password must contain at least {0} of the following characters: {1}</value>
+  </data>
+  <data name="strPasswordContainsLowerCaseConstraintHint" xml:space="preserve">
+    <value>Password must contain at least {0} lower case character(s)</value>
+  </data>
+  <data name="strPasswordContainsNumbersConstraint" xml:space="preserve">
+    <value>Password must contain at least {0} number(s)</value>
+  </data>
+  <data name="strPasswordContainsUpperCaseConstraintHint" xml:space="preserve">
+    <value>Password must contain at least {0} upper case character(s)</value>
+  </data>
+  <data name="strPasswordLengthConstraintHint" xml:space="preserve">
+    <value>Password length must be between {0} and {1}</value>
+  </data>
+  <data name="strChooseLogPath" xml:space="preserve">
+    <value>Choose a path for the mRemoteNG log file</value>
+  </data>
+  <data name="strDebug" xml:space="preserve">
+    <value>Debug</value>
+  </data>
+  <data name="strShowTheseMessageTypes" xml:space="preserve">
+    <value>Show these message types</value>
+  </data>
+  <data name="strLogFilePath" xml:space="preserve">
+    <value>Log file path</value>
+  </data>
+  <data name="strLogTheseMessageTypes" xml:space="preserve">
+    <value>Log these message types</value>
+  </data>
+  <data name="strChoosePath" xml:space="preserve">
+    <value>Choose Path</value>
+  </data>
+  <data name="strOpenFile" xml:space="preserve">
+    <value>Open File</value>
+  </data>
+  <data name="strUseDefault" xml:space="preserve">
+    <value>Use Default</value>
+  </data>
+  <data name="strLogging" xml:space="preserve">
+    <value>Logging</value>
+  </data>
+  <data name="strPopups" xml:space="preserve">
+    <value>Popups</value>
+  </data>
+  <data name="strLogToAppDir" xml:space="preserve">
+    <value>Log to application directory</value>
+  </data>
+  <data name="strAssignedCredential" xml:space="preserve">
+    <value>Assigned Credential</value>
+  </data>
+  <data name="strHttpsInsecureAllowAlways" xml:space="preserve">
+    <value>Allow Always</value>
+  </data>
+  <data name="strHttpsInsecureAllowOnce" xml:space="preserve">
+    <value>Allow Once</value>
+  </data>
+  <data name="strHttpsInsecureDontAllow" xml:space="preserve">
+    <value>Don't Allow</value>
+  </data>
+  <data name="strHttpsInsecurePrompt" xml:space="preserve">
+    <value>Allow Insecure Certificate for URL: {0}?</value>
+  </data>
+  <data name="strHttpsInsecurePromptTitle" xml:space="preserve">
+    <value>Allow Insecure Certificate?</value>
   </data>
 </root>

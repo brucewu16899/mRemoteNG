@@ -330,13 +330,13 @@ Si continúa teniendo problemas para hacer funcionar RDP, consulte el Foro de mR
 Versión de Control {0} de la Conexión de Escritorio Remoto</value>
   </data>
   <data name="strCcVNCFailed" xml:space="preserve">
-    <value>VNC necesita que VncSharpNG.dll esté situada en la carpeta donde está instalado mRemoteNG.
-Por favor, compruebe que tiene el archivo VncSharpNG.dll en la carpeta de instalación de mRemoteNG (normalmente C:\Archivos de Programa\mRemoteNG\).
+    <value>VNC necesita que VncSharp.dll esté situada en la carpeta donde está instalado mRemoteNG.
+Por favor, compruebe que tiene el archivo VncSharp.dll en la carpeta de instalación de mRemoteNG (normalmente C:\Archivos de Programa\mRemoteNG\).
 Si continúa sin funcionar la comprobación ó no puede utilizar VNC en mRemoteNG, consulte el Foro de mRemoteNG en http://forum.mremoteng.org/</value>
   </data>
   <data name="strCcVNCOK" xml:space="preserve">
     <value>Todos los componentes VNC han sido localizados y parecen registrados adecuadamente.
-Versión de Control {0} de VNCSharpNG</value>
+Versión de Control {0} de VncSharp</value>
   </data>
   <data name="strCheckboxAutomaticReconnect" xml:space="preserve">
     <value>Tratar de reconectar automáticamente al ser desconectado del servidor (solo RDP &amp;&amp; ICA)</value>
@@ -444,7 +444,8 @@ Versión de Control {0} de VNCSharpNG</value>
     <value>Error al Cargar la Interfaz de Configuración de Usuario</value>
   </data>
   <data name="strConfirmCloseConnectionMainInstruction" xml:space="preserve">
-    <value>Desea cerrar la conexión, "{0}"?</value>
+    <value>Desea cerrar la conexión:
+"{0}"?</value>
   </data>
   <data name="strConfirmCloseConnectionPanelMainInstruction" xml:space="preserve">
     <value>Está seguro de querer cerrar el panel, "{0}"? Cualquier conexión que contenga será también cerrada.</value>
@@ -902,9 +903,6 @@ Ver el articulo de soporte de Microsoft en http://support.microsoft.com/kb/81183
   </data>
   <data name="strMenuAddConnectionPanel" xml:space="preserve">
     <value>Agregar Panel de Conexión</value>
-  </data>
-  <data name="strMenuAnnouncements" xml:space="preserve">
-    <value>Novedades</value>
   </data>
   <data name="strMenuCheckForUpdates" xml:space="preserve">
     <value>Comprobar Actualizaciones</value>
